@@ -59,7 +59,11 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_profiles' AND column_name='currency') THEN
         ALTER TABLE public.user_profiles ADD COLUMN currency VARCHAR(10) DEFAULT '₦';
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_profiles' AND column_name='meta_webhook_recipient_id') THEN
+        ALTER TABLE public.user_profiles ADD COLUMN meta_webhook_recipient_id VARCHAR(255);
+    END IF;
 END $$;
+
 
 -- 5. MESSAGES TABLE (Chat History)
 CREATE TABLE IF NOT EXISTS public.messages (

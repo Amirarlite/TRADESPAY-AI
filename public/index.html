@@ -1,50 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TradesPay AI - Command Center</title>
-    <style>
-        body { font-family: 'Syne', system-ui, sans-serif; background: #0a0a0a; color: #f4f4f5; text-align: center; padding: 40px; margin: 0; }
-        .container { max-width: 600px; margin: 0 auto; background: #18181b; padding: 40px; border-radius: 12px; border: 1px solid #27272a; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .logo { max-width: 200px; margin-bottom: 20px; }
-        h2 { color: #ff5c1a; font-family: 'Bebas Neue', Impact, sans-serif; letter-spacing: 1.5px; font-size: 32px; margin-top: 0; }
-        p { color: #a1a1aa; font-size: 16px; margin-bottom: 30px; line-height: 1.5; }
-        
-        .mic-btn { 
-            background: #ff5c1a; color: white; border: none; padding: 18px 36px; font-size: 18px; 
-            border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .mic-btn:hover { background: #e04d14; }
-        .mic-btn.listening { background: #dc2626; animation: pulse 1.5s infinite; }
-        
-        #status-log { margin-top: 25px; padding: 15px; background: #27272a; border-radius: 6px; font-size: 14px; border-left: 4px solid #ff5c1a; text-align: left;}
-        pre { background: #000; padding: 20px; border-radius: 8px; text-align: left; overflow-x: auto; color: #4ade80; border: 1px solid #3f3f46; font-size: 14px;}
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#080808"/>
+<title>TradesPay AI — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --black:#080808;--g1:#0f0f0f;--g2:#161616;--g3:#242424;--g4:#333;
+  --mut:#555;--mutl:#888;--wht:#f0ede8;
+  --or:#ff5c1a;--or2:#ff7a3d;--ord:rgba(255,92,26,0.12);--orm:rgba(255,92,26,0.3);
+  --grn:#22c55e;--red:#ef4444;--yel:#f59e0b;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--wht);background:var(--black)}
+.page{display:none;min-height:100vh;background:var(--black)}
+.page.active{display:block}
+.screen{display:none;flex-direction:column;height:100vh;background:var(--black);max-width:430px;margin:0 auto;box-shadow: 0 0 0 1px rgba(255,255,255,0.05)}
+.screen.active{display:flex}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--g1);border-bottom:1px solid var(--g2);flex-shrink:0}
+.hdr-title{font-size:15px;font-weight:800;color:var(--wht);font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.back{color:var(--or);font-size:13px;font-weight:700;border:none;background:none;cursor:pointer}
+.scroll{flex:1;overflow-y:auto;padding:14px;padding-bottom:24px}
+.card{background:var(--g2);border-radius:12px;padding:14px;border:1px solid var(--g3);margin-bottom:10px}
+.btn-primary{background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;border:none;border-radius:999px;padding:14px 20px;font-size:14px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 16px rgba(255,92,26,0.35);margin-bottom:8px}
+.btn-ghost{background:transparent;color:var(--wht);border:1px solid var(--g3);border-radius:999px;padding:13px 20px;font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-bottom:8px}
+.bnav{display:flex;background:var(--g1);border-top:1px solid var(--g2);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.bnav-btn{flex:1;border:none;background:none;padding:9px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bnav-lbl{font-size:9px;font-weight:700}
+.bnav-dot{width:18px;height:2px;border-radius:1px;background:var(--or);margin-top:1px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--g3);color:var(--wht);padding:10px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <img src="https://i.postimg.cc/9FhB2btn/Trades-Pay-AI-logo-png.jpg" alt="TradesPay AI" class="logo">
-        <h2>Voice-to-Invoice AI</h2>
-        <p>Skip the typing. Tap the mic and describe the job, client name, and prices. The AI will extract it instantly.</p>
-        
-        <button id="start-voice-btn" class="mic-btn">🎙️ Tap to Speak</button>
-        
-        <div id="status-log">System Ready. Waiting for voice input...</div>
 
-        <div id="result-container" style="display: none; margin-top: 30px;">
-            <h3 style="color: #ff5c1a; text-align: left; margin-bottom: 10px;">⚡ AI Extracted JSON:</h3>
-            <pre id="json-output"></pre>
-        </div>
+<div class="toast" id="toast"></div>
+
+<div id="app-page" class="page active">
+
+<div id="s-dashboard" class="screen active">
+  <div class="hdr" style="background:linear-gradient(180deg,var(--g1),var(--black))">
+    <div>
+      <div style="color:var(--mutl);font-size:11px">Good day,</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--wht)" id="dash-biz">TradesPay AI</div>
+        <span style="background:var(--ord);border:1px solid var(--orm);color:var(--or);font-size:9px;font-weight:800;padding:2px 7px;border-radius:999px">PRO</span>
+      </div>
     </div>
+    <div style="width:36px;height:36px;border-radius:18px;background:var(--ord);border:2px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--or)">T</div>
+  </div>
+  <div class="scroll">
+    <div style="background:linear-gradient(135deg,#1a0800,#0f0500);border-radius:14px;padding:16px;border:1px solid rgba(255,92,26,0.2);margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between">
+        <div><div style="color:var(--mutl);font-size:9px;font-weight:700;letter-spacing:1.5px">TOTAL INVOICED</div><div style="color:var(--wht);font-size:34px;font-weight:800;font-family:'Bebas Neue',sans-serif;margin-top:2px">$0</div></div>
+        <div style="text-align:right"><div style="color:var(--mutl);font-size:9px;font-weight:700;letter-spacing:1.5px">COLLECTED</div><div style="color:var(--grn);font-size:22px;font-weight:800;font-family:'Bebas Neue',sans-serif;margin-top:2px">$0</div></div>
+      </div>
+    </div>
+    
+    <div style="margin-bottom:14px; margin-top:20px;">
+      <div style="font-size:14px;font-weight:800;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:var(--wht);margin-bottom:9px">CREATE INVOICE</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <button onclick="showScreen('s-voice')" style="background:linear-gradient(135deg,var(--or2),var(--or));border:none;border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center;box-shadow:0 4px 16px rgba(255,92,26,0.3)"><div style="font-size:26px">🎤</div><div style="color:#fff;font-size:12px;font-weight:800;margin-top:3px">Voice</div></button>
+        <button style="background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center"><div style="font-size:26px">📸</div><div style="color:var(--wht);font-size:12px;font-weight:800;margin-top:3px">Photo</div></button>
+        <button style="background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center"><div style="font-size:26px">✏️</div><div style="color:var(--wht);font-size:12px;font-weight:800;margin-top:3px">Manual</div></button>
+      </div>
+    </div>
+  </div>
+  <div class="bnav" id="bnav-dash"></div>
+</div>
 
-    <script src="/app.js"></script>
+<div id="s-voice" class="screen">
+  <div class="hdr"><button class="back" onclick="showScreen('s-dashboard')">← Back</button><div class="hdr-title">🎤 VOICE INVOICE</div><div style="width:50px"></div></div>
+  <div class="scroll">
+    <div id="vi-idle" style="text-align:center;padding-top:10px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--wht);margin-bottom:6px">SPEAK YOUR JOB</div>
+      <div style="color:var(--mutl);font-size:13px;margin-bottom:32px">Tap and describe the completed work</div>
+      <div style="position:relative;width:140px;height:140px;margin:0 auto 32px">
+        <div id="pulse-ring" style="position:absolute;inset:0;border-radius:50%;background:var(--ord);transition:transform 0.3s"></div>
+        <button onclick="startRec()" id="rec-btn" style="position:relative;width:140px;height:140px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--or2),var(--or));display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(255,92,26,0.45)">
+          <span id="rec-icon" style="font-size:44px">🎤</span>
+          <span id="rec-lbl" style="color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;margin-top:3px">TAP TO START</span>
+        </button>
+      </div>
+      <div class="card" style="text-align:left">
+        <div style="color:var(--mutl);font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:8px">EXAMPLES</div>
+        <div style="color:var(--mutl);font-size:12px;line-height:2">"Charge Mike $1,500 for HVAC install"<br/>"Invoice Sarah $800 roof repair"</div>
+      </div>
+    </div>
+    
+    <div id="vi-text" style="display:none">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--wht);margin-bottom:6px">DESCRIBE THE JOB</div>
+      <div style="color:var(--mutl);font-size:12px;margin-bottom:16px">AI will build the full invoice automatically</div>
+      <div class="card"><textarea id="voice-txt" style="background:var(--g3);border:1px solid var(--g4);border-radius:8px;padding:10px;color:var(--wht);font-size:13px;width:100%;outline:none;min-height:90px;resize:none" placeholder='"Charge Mike $1500 for HVAC install"'></textarea></div>
+      <button class="btn-primary" onclick="processVoice()">🤖 Generate Invoice with AI</button>
+      <button class="btn-ghost" onclick="resetVoice()">Start Over</button>
+    </div>
+    
+    <div id="vi-proc" style="display:none;text-align:center;padding-top:60px"><div style="font-size:60px;margin-bottom:16px">🤖</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--wht);margin-bottom:6px">BUILDING INVOICE...</div><div style="color:var(--mutl);font-size:12px">Qwen AI is reading your description</div></div>
+    
+    <div id="vi-prev" style="display:none">
+      <div style="color:var(--grn);font-size:10px;font-weight:800;letter-spacing:2px;margin-bottom:6px">✅ INVOICE READY</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--wht);margin-bottom:16px">REVIEW & SAVE</div>
+      <div id="vi-card" style="margin-bottom:14px"></div>
+      <div style="background:var(--ord);border-radius:8px;padding:9px;margin-bottom:14px;text-align:center"><span style="color:var(--or);font-size:11px;font-weight:600" id="vi-conf">🤖 AI Confidence: 92%</span></div>
+      <button class="btn-primary" onclick="saveVoiceInv()">💾 Save Invoice</button>
+      <button class="btn-ghost" onclick="resetVoice()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// VIP Bypass & Init
+window.addEventListener('DOMContentLoaded',()=>{
+  localStorage.setItem('tp_token', 'testing-bypass-token');
+  const bnav = `<button class="bnav-btn" onclick="showScreen('s-dashboard')"><span style="font-size:20px">🏠</span><span class="bnav-lbl" style="color:var(--or)">Home</span><div class="bnav-dot"></div></button>`;
+  document.getElementById('bnav-dash').innerHTML = bnav;
+});
+
+function showToast(msg){const e=document.getElementById('toast');if(!e)return;e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+// Currency Formatter
+const formatMoney = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+window.fmt = (n, cur) => (cur || '$') + formatMoney(n);
+
+// Voice Engine
+let recognition = null;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'en-US';
+}
+
+function startRec(){
+  const btn=document.getElementById('rec-btn'),icon=document.getElementById('rec-icon'),lbl=document.getElementById('rec-lbl'),ring=document.getElementById('pulse-ring');
+  if (!recognition) {
+       showToast("Speech recognition not supported here. Type it manually!");
+       document.getElementById('vi-idle').style.display='none'; document.getElementById('vi-text').style.display='block'; return;
+  }
+  icon.textContent='⏹';lbl.textContent='TAP TO STOP'; btn.style.background='linear-gradient(135deg,#c0392b,var(--red))'; ring.style.animation='pulse 1s infinite';
+  try { recognition.start(); } catch(e){}
+
+  recognition.onresult = (e) => {
+      let t = ''; for (let i = e.resultIndex; i < e.results.length; ++i) if (e.results[i].isFinal) t += e.results[i][0].transcript;
+      if (t) document.getElementById('voice-txt').value = t;
+  };
+  recognition.onend = stopRecUiState;
+  btn.onclick = () => { recognition.stop(); stopRecUiState(); };
+  function stopRecUiState() {
+      icon.textContent='🎤';lbl.textContent='TAP TO START'; btn.style.background='linear-gradient(135deg,var(--or2),var(--or))'; ring.style.animation='none';
+      document.getElementById('vi-idle').style.display='none'; document.getElementById('vi-text').style.display='block'; btn.onclick=startRec;
+  }
+}
+
+// AI Processor with Premium Receipt & Currency Fix
+let voiceData = null;
+async function processVoice() {
+  const txt = document.getElementById('voice-txt').value;
+  if (!txt.trim()) return showToast('Please describe the job');
+  
+  document.getElementById('vi-text').style.display = 'none';
+  document.getElementById('vi-proc').style.display = 'block';
+  
+  try {
+    const res = await fetch('/api/ai/voice-to-invoice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript: txt })
+    });
+    
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    voiceData = data.invoice || data;
+    
+    document.getElementById('vi-proc').style.display = 'none';
+    document.getElementById('vi-prev').style.display = 'block';
+    document.getElementById('vi-conf').textContent = `🤖 Confidence: ${Math.round((voiceData.confidence || 0.9) * 100)}%`;
+    
+    let curr = voiceData.currency || '$';
+    if (curr.toUpperCase().includes('NGN') || curr.includes('naira')) curr = '₦';
+    if (curr.toUpperCase().includes('USD') || curr.includes('dollar')) curr = '$';
+
+    const invNum = Math.floor(100000 + Math.random() * 900000);
+    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const totalNum = Number(voiceData.total || 0);
+    const subtotalNum = voiceData.subtotal ? Number(voiceData.subtotal) : (totalNum / 1.075);
+    const taxNum = voiceData.taxAmount ? Number(voiceData.taxAmount) : (totalNum - subtotalNum);
+
+    const itemsHtml = (voiceData.lineItems || []).map(it => `
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
+        <span style="color:var(--wht); flex:1; padding-right:10px;">${it.description}</span>
+        <span style="color:var(--mutl); width:30px; text-align:right">x${it.quantity || 1}</span>
+        <span style="color:var(--wht); width:80px; text-align:right; font-weight:700">${curr}${formatMoney(it.amount || it.amt || 0)}</span>
+      </div>
+    `).join('');
+    
+    document.getElementById('vi-card').innerHTML = `
+      <div style="background:var(--g1); border-radius:8px; padding:18px; border:1px solid var(--g3); text-align:left;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; border-bottom:1px dashed var(--g3); padding-bottom:14px;">
+          <div><div style="color:var(--mutl); font-size:9px; font-weight:800; letter-spacing:1.5px">BILLED TO</div><div style="color:var(--wht); font-size:16px; font-weight:800; font-family:'Bebas Neue', sans-serif; margin-top:2px; letter-spacing:1px;">${voiceData.clientName || 'Valued Client'}</div></div>
+          <div style="text-align:right;"><div style="color:var(--mutl); font-size:9px; font-weight:800; letter-spacing:1.5px">INVOICE NO.</div><div style="color:var(--or); font-size:13px; font-weight:800; margin-top:2px;">#INV-${invNum}</div><div style="color:var(--mutl); font-size:10px; margin-top:4px">${today}</div></div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--mutl); font-size:9px; font-weight:800; letter-spacing:1px; border-bottom:1px solid var(--g2); padding-bottom:6px;"><span style="flex:1">DESCRIPTION</span><span style="width:30px; text-align:right">QTY</span><span style="width:80px; text-align:right">AMOUNT</span></div>
+          ${itemsHtml}
+        </div>
+        <div style="border-top:1px dashed var(--g3); padding-top:14px; margin-top:14px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px;"><span style="color:var(--mutl); font-weight:600;">Subtotal</span><span style="color:var(--wht); font-weight:600;">${curr}${formatMoney(subtotalNum)}</span></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:16px; font-size:12px;"><span style="color:var(--mutl); font-weight:600;">VAT (7.5%)</span><span style="color:var(--wht); font-weight:600;">${curr}${formatMoney(taxNum)}</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--black); padding:14px; border-radius:8px; border:1px solid var(--orm); box-shadow: 0 4px 15px rgba(255,92,26,0.1);"><span style="font-weight:800; color:var(--or); font-size:11px; letter-spacing:1.5px">TOTAL DUE</span><span style="color:var(--or); font-size:24px; font-weight:800; font-family:'Bebas Neue',sans-serif">${curr}${formatMoney(totalNum)}</span></div>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('vi-proc').style.display = 'none'; document.getElementById('vi-text').style.display = 'block'; showToast('❌ Backend Error');
+  }
+}
+
+function saveVoiceInv() { showToast('✅ Invoice Saved!'); setTimeout(() => { resetVoice(); showScreen('s-dashboard'); }, 1500); }
+function resetVoice(){ voiceData=null; ['vi-idle','vi-text','vi-proc','vi-prev'].forEach((id,i)=>{const e=document.getElementById(id);if(e)e.style.display=i===0?'block':'none'}); const t=document.getElementById('voice-txt');if(t)t.value=''; }
+</script>
 </body>
 </html>

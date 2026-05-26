@@ -40,26 +40,42 @@ function handleInboundWebhookTask(body) {
             let messageText = messaging?.message?.text;
             const platform = body.object;
 
+            let merchantId = messaging?.recipient?.id;
             if (platform === 'whatsapp_business_account') {
                 const waMsg = entry?.changes?.[0]?.value?.messages?.[0];
                 senderId = waMsg?.from;
                 messageText = waMsg?.text?.body;
+                merchantId = entry?.changes?.[0]?.value?.metadata?.phone_number_id;
             }
 
             if (!senderId || !messageText || messaging?.message?.is_echo) return;
             console.log(`📩 Processing background message from ${senderId}: "${messageText}"`);
 
+            const lookupId = merchantId || senderId;
+
             // FIX: Explicit profile lookup using target mapping, NOT a random row
-            const { data: profile } = await supabase
+            // We search for a match in meta_webhook_recipient_id, whatsapp_id, or instagram_id
+            let { data: profile } = await supabase
                 .from('user_profiles')
                 .select('*')
-                .eq('meta_webhook_recipient_id', senderId)
-                .single();
+                .or(`meta_webhook_recipient_id.eq.${lookupId},whatsapp_id.eq.${lookupId},instagram_id.eq.${lookupId}`)
+                .maybeSingle();
+
+            // If still not found, try to look up by whatsapp_number as a fallback
+            if (!profile && platform === 'whatsapp_business_account') {
+                const { data: profByPhone } = await supabase
+                    .from('user_profiles')
+                    .select('*')
+                    .or(`whatsapp_number.eq.${senderId},whatsapp_number.eq.${lookupId}`)
+                    .maybeSingle();
+                profile = profByPhone;
+            }
 
             if (!profile) {
-                console.log(`⚠️ Unregistered conversation stream context: ${senderId}. Bypassing AI.`);
+                console.log(`⚠️ Unregistered conversation stream context (lookupId: ${lookupId}). Bypassing AI.`);
                 return;
             }
+
 
             // FIX: Ensure plan check handles string-based .env variable properly
             if (profile.plan !== 'premium' && process.env.TESTING_MODE !== 'true') {

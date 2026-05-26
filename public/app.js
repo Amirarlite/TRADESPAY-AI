@@ -7,9 +7,66 @@ const jsonOutput = document.getElementById('json-output');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (!SpeechRecognition) {
-    statusLog.innerHTML = "⚠️ <strong>Error:</strong> Your browser does not support Voice AI. Please use Google Chrome or Edge.";
-    micBtn.disabled = true;
-    micBtn.style.opacity = "0.5";
+    statusLog.innerHTML = "🎙️ <strong>Firefox/Safari Mode Active:</strong> Tap below to record. Speak naturally, then tap again to generate your invoice.";
+    
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+    
+    micBtn.addEventListener('click', async () => {
+        if (!isRecording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    statusLog.innerHTML = "<span style='color: #60a5fa;'>🧠 Transcribing audio and building invoice via Groq Whisper...</span>";
+                    
+                    try {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const formData = new FormData();
+                        formData.append('audio', audioBlob, 'voice-recording.webm');
+                        
+                        const response = await fetch('/api/ai/voice-to-invoice-file', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        if (data.error) throw new Error(data.error);
+                        
+                        statusLog.innerHTML = `<strong>Heard:</strong> "${data.transcript}"<br><br><span style='color: #4ade80;'>✅ Invoice successfully generated via Groq/LLM!</span>`;
+                        resultContainer.style.display = 'block';
+                        jsonOutput.innerText = JSON.stringify(data.invoice, null, 2);
+                    } catch (error) {
+                        console.error(error);
+                        statusLog.innerHTML = `<span style='color: #f87171;'>❌ AI Error: ${error.message}</span>`;
+                    }
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                micBtn.innerText = "🛑 Stop Recording";
+                micBtn.classList.add('listening');
+                statusLog.innerHTML = "<span style='color: #fbbf24;'>🎙️ Recording active... Speak your job description naturally.</span>";
+                resultContainer.style.display = "none";
+            } catch (err) {
+                console.error(err);
+                statusLog.innerHTML = `<span style='color: #f87171;'>❌ Microphone Access Error: ${err.message}</span>`;
+            }
+        } else {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            isRecording = false;
+            micBtn.innerText = "🎙️ Tap to Speak";
+            micBtn.classList.remove('listening');
+        }
+    });
 } else {
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
@@ -24,16 +81,13 @@ if (!SpeechRecognition) {
     });
 
     recognition.onresult = async (event) => {
-        // Stop UI animation
         micBtn.innerText = "🎙️ Tap to Speak";
         micBtn.classList.remove('listening');
         
-        // Grab the text the browser heard
         const transcript = event.results[0][0].transcript;
         statusLog.innerHTML = `<strong>Heard:</strong> "${transcript}"<br><br><span style='color: #60a5fa;'>🧠 Routing to TradesPay AI Engine...</span>`;
 
         try {
-            // POST text to our newly built backend server
             const response = await fetch('/api/ai/voice-to-invoice', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -41,10 +95,8 @@ if (!SpeechRecognition) {
             });
             
             const data = await response.json();
-            
-            if(data.error) throw new Error(data.error);
+            if (data.error) throw new Error(data.error);
 
-            // Display Success & JSON
             statusLog.innerHTML = "<span style='color: #4ade80;'>✅ Invoice successfully generated via Groq/LLM!</span>";
             resultContainer.style.display = 'block';
             jsonOutput.innerText = JSON.stringify(data.invoice, null, 2);
