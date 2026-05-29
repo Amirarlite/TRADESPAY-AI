@@ -122,3 +122,30 @@ BEGIN
         ALTER TABLE public.invoices ADD COLUMN client_email VARCHAR(255);
     END IF;
 END $$;
+
+-- 8. WEBHOOK QUEUE (guaranteed message processing — zero missed DMs)
+CREATE TABLE IF NOT EXISTS public.webhook_queue (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    platform VARCHAR(50),          -- 'instagram' or 'whatsapp_business_account'
+    sender_id VARCHAR(255),
+    recipient_id VARCHAR(255),
+    message_text TEXT,
+    status VARCHAR(20) DEFAULT 'pending',  -- pending / processing / completed / failed
+    retry_count INT DEFAULT 0,
+    error_message TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    processed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Auto-clean completed queue items older than 7 days
+CREATE OR REPLACE FUNCTION clean_old_queue_entries()
+RETURNS void AS $$
+BEGIN
+    DELETE FROM public.webhook_queue
+    WHERE status IN ('completed', 'failed')
+      AND processed_at < NOW() - INTERVAL '7 days';
+END;
+$$ LANGUAGE plpgsql;
+
+-- Index for fast queue polling
+CREATE INDEX IF NOT EXISTS idx_webhook_queue_status ON public.webhook_queue(status, created_at);
