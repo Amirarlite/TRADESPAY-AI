@@ -8,7 +8,7 @@
 // ── SUPABASE (must match your project) ──
 // Get from: Supabase Dashboard → Project Settings → API
 window.SUPABASE_URL = 'https://kakynaaatzotkpyjsvit.supabase.co';
-window.SUPABASE_ANON = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha3luYWFhdHpvdGtweWpzdml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjIzNTAsImV4cCI6MjA4ODMzODM1MH0.Q8hQqFmex3X9LryCEIUgW6PAdNRpx31d9xgBI8x-OQ0
+window.SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha3luYWFhdHpvdGtweWpzdml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjIzNTAsImV4cCI6MjA4ODMzODM1MH0.Q8hQqFmex3X9LryCEIUgW6PAdNRpx31d9xgBI8x-OQ0'
 
 // ── BACKEND MODE ────────────────────────────────────────
 // "edge" → All API calls go to Supabase Edge Functions
