@@ -120,7 +120,26 @@ export async function runAIEngine(params: {
   engine?: string;
   businessContext?: Record<string, string>;
 }): Promise<Record<string, unknown>> {
-  const { promptText, engine = "groq", businessContext = {} } = params;
+  const { promptText, engine, businessContext = {} } = params;
+
+  // Resolve engine: explicit param → model_config table → env var → default "groq"
+  let resolvedEngine = engine;
+  if (!resolvedEngine) {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const res = await fetch(`${supabaseUrl}/rest/v1/model_config?select=model&limit=1`, {
+          headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.length > 0) resolvedEngine = data[0].model;
+        }
+      } catch { /* table not yet created — fall through */ }
+    }
+  }
+  resolvedEngine = resolvedEngine ?? Deno.env.get("INVOICE_AI_ENGINE") ?? "groq";
 
   const contextPrompt =
     `${SYSTEM_PROMPT}\n\n` +
@@ -134,7 +153,7 @@ export async function runAIEngine(params: {
 
   let rawOutput: string;
 
-  switch (engine) {
+  switch (resolvedEngine) {
     case "groq":
       rawOutput = await callGroq(messages);
       break;

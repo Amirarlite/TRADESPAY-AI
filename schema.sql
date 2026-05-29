@@ -149,3 +149,14 @@ $$ LANGUAGE plpgsql;
 
 -- Index for fast queue polling
 CREATE INDEX IF NOT EXISTS idx_webhook_queue_status ON public.webhook_queue(status, created_at);
+
+-- 9. MODEL CONFIG (per-user or global AI model switching)
+CREATE TABLE IF NOT EXISTS public.model_config (
+    key VARCHAR(50) PRIMARY KEY,
+    model VARCHAR(50) NOT NULL DEFAULT 'groq',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Seed with default
+INSERT INTO public.model_config (key, model) VALUES ('active_model', 'groq')
+ON CONFLICT (key) DO NOTHING;

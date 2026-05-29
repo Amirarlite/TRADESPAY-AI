@@ -206,7 +206,24 @@ serve(async (req: Request) => {
     console.log(`🔄 Processing ${pending.length} pending message(s)...`);
 
     const results: Array<{ sender_id: string; status: string; error?: string }> = [];
-    const engine = Deno.env.get("AUTOPILOT_AI_ENGINE") ?? "groq";
+    // Resolve engine: env var -> model_config table -> default "groq"
+    let engine = Deno.env.get("AUTOPILOT_AI_ENGINE");
+    if (!engine) {
+      const sUrl = Deno.env.get("SUPABASE_URL");
+      const sKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (sUrl && sKey) {
+        try {
+          const r = await fetch(`${sUrl}/rest/v1/model_config?select=model&limit=1`, {
+            headers: { apikey: sKey, Authorization: `Bearer ${sKey}` },
+          });
+          if (r.ok) {
+            const d = await r.json();
+            if (d.length > 0) engine = d[0].model;
+          }
+        } catch { /* table not created yet - fall through */ }
+      }
+    }
+    engine = engine ?? "groq";
 
     for (const item of pending) {
       try {
