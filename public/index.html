@@ -1,226 +1,1983 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="theme-color" content="#080808"/>
-<title>TradesPay AI — Command Center</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --black:#080808;--g1:#0f0f0f;--g2:#161616;--g3:#242424;--g4:#333;
-  --mut:#555;--mutl:#888;--wht:#f0ede8;
-  --or:#ff5c1a;--or2:#ff7a3d;--ord:rgba(255,92,26,0.12);--orm:rgba(255,92,26,0.3);
-  --grn:#22c55e;--red:#ef4444;--yel:#f59e0b;
-}
-html,body{height:100%;font-family:'DM Sans',sans-serif;color:var(--wht);background:var(--black)}
-.page{display:none;min-height:100vh;background:var(--black)}
-.page.active{display:block}
-.screen{display:none;flex-direction:column;height:100vh;background:var(--black);max-width:430px;margin:0 auto;box-shadow: 0 0 0 1px rgba(255,255,255,0.05)}
-.screen.active{display:flex}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--g1);border-bottom:1px solid var(--g2);flex-shrink:0}
-.hdr-title{font-size:15px;font-weight:800;color:var(--wht);font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
-.back{color:var(--or);font-size:13px;font-weight:700;border:none;background:none;cursor:pointer}
-.scroll{flex:1;overflow-y:auto;padding:14px;padding-bottom:24px}
-.card{background:var(--g2);border-radius:12px;padding:14px;border:1px solid var(--g3);margin-bottom:10px}
-.btn-primary{background:linear-gradient(135deg,var(--or2),var(--or));color:#fff;border:none;border-radius:999px;padding:14px 20px;font-size:14px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 16px rgba(255,92,26,0.35);margin-bottom:8px}
-.btn-ghost{background:transparent;color:var(--wht);border:1px solid var(--g3);border-radius:999px;padding:13px 20px;font-size:13px;font-weight:600;cursor:pointer;width:100%;margin-bottom:8px}
-.bnav{display:flex;background:var(--g1);border-top:1px solid var(--g2);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
-.bnav-btn{flex:1;border:none;background:none;padding:9px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
-.bnav-lbl{font-size:9px;font-weight:700}
-.bnav-dot{width:18px;height:2px;border-radius:1px;background:var(--or);margin-top:1px}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--g3);color:var(--wht);padding:10px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
-.toast.show{opacity:1}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="TradesPay AI" />
+  <title>TradesPay AI — Invoice & Get Paid</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  
+  <!-- SEO & Social Media (Supreme Preview) -->
+  <meta name="description" content="TradesPay AI - The most advanced AI Sales Auto-Pilot for small businesses. Generate invoices via voice or photo and close sales automatically." />
+  <meta property="og:title" content="TradesPay AI — Invoice & Get Paid Hands-Free" />
+  <meta property="og:description" content="The Supreme AI Sales Assistant for Contractors. Voice & Photo Invoicing + Auto-Pilot Messaging. Never miss a sale again." />
+  <meta property="og:image" content="https://tradespay.srdgintel.com/logo.png" />
+  <meta property="og:url" content="https://tradespay.srdgintel.com" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="TradesPay AI — Supreme Sales Auto-Pilot" />
+  <meta name="twitter:description" content="Generate invoices via voice or photo instantly." />
+  <meta name="twitter:image" content="https://tradespay.srdgintel.com/logo.png" />
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    :root {
+      --black: #080808;
+      --g1: #111;
+      --g2: #181818;
+      --g3: #242424;
+      --g4: #333;
+      --mut: #555;
+      --mutl: #888;
+      --wht: #f0ede8;
+      --or: #ff5c1a;
+      --ord: rgba(255, 92, 26, 0.12);
+      --orm: rgba(255, 92, 26, 0.3);
+      --grn: #22c55e;
+      --red: #ef4444;
+      --yel: #f59e0b;
+      --grnd: rgba(34, 197, 94, 0.12);
+      --redd: rgba(239, 68, 68, 0.12);
+      --yeld: rgba(245, 158, 11, 0.12);
+      --blur: blur(12px);
+      --shd: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--wht)
+    }
+
+    #app {
+      width: 100%;
+      max-width: 430px;
+      height: 100%;
+      margin: 0 auto;
+      background: var(--black);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative
+    }
+
+    @media(min-width:431px) {
+      #app {
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 40px 100px rgba(0, 0, 0, 0.8)
+      }
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      background: var(--black)
+    }
+
+    .screen.active {
+      display: flex
+    }
+
+    .hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--g1);
+      border-bottom: 1px solid var(--g2);
+      flex-shrink: 0
+    }
+
+    .hdr-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--wht);
+      letter-spacing: -0.3px;
+      font-family: 'Syne', sans-serif
+    }
+
+    .back {
+      color: var(--or);
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0
+    }
+
+    .scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: 24px
+    }
+
+    .scroll::-webkit-scrollbar {
+      width: 0
+    }
+
+    .card {
+      background: var(--g2);
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid var(--g3);
+      margin-bottom: 10px
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff7a3d, var(--or));
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 16px rgba(255, 92, 26, 0.35);
+      margin-bottom: 8px;
+      font-family: 'DM Sans', sans-serif
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--wht);
+      border: 1px solid var(--g3);
+      border-radius: 999px;
+      padding: 13px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 8px;
+      font-family: 'DM Sans', sans-serif
+    }
+
+    .inp {
+      background: var(--g2);
+      border: 1px solid var(--g3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--wht);
+      font-size: 14px;
+      width: 100%;
+      outline: none;
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 10px
+    }
+
+    .inp::placeholder {
+      color: var(--mut)
+    }
+
+    .inp:focus {
+      border-color: var(--orm)
+    }
+
+    .label {
+      color: var(--mutl);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-bottom: 5px;
+      display: block
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--g3);
+      margin: 10px 0
+    }
+
+    .tag {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 2px 7px;
+      border-radius: 999px
+    }
+
+    .tag-paid {
+      background: var(--grnd);
+      color: var(--grn)
+    }
+
+    .tag-overdue {
+      background: var(--redd);
+      color: var(--red)
+    }
+
+    .tag-sent {
+      background: var(--yeld);
+      color: var(--yel)
+    }
+
+    .tag-draft {
+      background: var(--g3);
+      color: var(--mutl)
+    }
+
+    .tag-pro {
+      background: var(--ord);
+      color: var(--or);
+      border: 1px solid var(--orm)
+    }
+
+    .bnav {
+      display: flex;
+      background: var(--g1);
+      border-top: 1px solid var(--g2);
+      flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom)
+    }
+
+    .bnav-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 9px 4px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px
+    }
+
+    .bnav-icon {
+      font-size: 20px
+    }
+
+    .bnav-lbl {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.3px
+    }
+
+    .bnav-dot {
+      width: 18px;
+      height: 2px;
+      border-radius: 1px;
+      background: var(--or);
+      margin-top: 1px
+    }
+
+    .oauth-btn {
+      width: 100%;
+      padding: 13px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--g3);
+      background: var(--g2);
+      color: var(--wht);
+      margin-bottom: 10px;
+      transition: border-color 0.2s, background 0.2s;
+      font-family: 'DM Sans', sans-serif
+    }
+
+    .oauth-btn:hover {
+      border-color: var(--g4);
+      background: var(--g3)
+    }
+
+    .oauth-btn .icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px
+    }
+
+    .oauth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0
+    }
+
+    .oauth-divider::before,
+    .oauth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--g3)
+    }
+
+    .oauth-divider span {
+      color: var(--mut);
+      font-size: 12px;
+      white-space: nowrap
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--g3);
+      color: var(--wht);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      white-space: nowrap
+    }
+
+    .toast.show {
+      opacity: 1
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 8, 8, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 998;
+      flex-direction: column;
+      gap: 16px
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--g3);
+      border-top-color: var(--or);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* PREMIUM UTILITIES */
+    .bento-grid { display: grid; gap: 10px; }
+    .bento-2 { grid-template-columns: 1fr 1fr; }
+    .bento-3 { grid-template-columns: repeat(3, 1fr); }
+    
+    .chart-box { 
+      background: var(--g1); 
+      border-radius: 12px; 
+      padding: 16px; 
+      border: 1px solid var(--g2); 
+      height: 200px; 
+      display: flex; 
+      align-items: flex-end; 
+      justify-content: space-between; 
+      gap: 8px;
+    }
+    .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+    .chart-bar { width: 100%; background: var(--g3); border-radius: 4px 4px 0 0; position: relative; min-height: 4px; transition: height 1s ease-out; }
+    .chart-bar.active { background: var(--or); box-shadow: 0 0 15px var(--orm); }
+    .chart-lbl { font-size: 8px; color: var(--mutl); font-weight: 700; text-transform: uppercase; }
+
+    .stat-mini { font-size: 10px; font-weight: 700; color: var(--mutl); letter-spacing: 1px; margin-bottom: 4px; }
+    .stat-val { font-size: 20px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--wht); }
+    
+    .glass { background: rgba(24, 24, 24, 0.7); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); border: 1px solid rgba(255, 255, 255, 0.05); }
+    
+    .badge-ai { background: var(--ord); color: var(--or); padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; border: 1px solid var(--orm); display: inline-flex; align-items: center; gap: 4px; }
+  </style>
 </head>
+
 <body>
 
-<div class="toast" id="toast"></div>
+  <div id="app">
 
-<div id="app-page" class="page active">
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
 
-<div id="s-dashboard" class="screen active">
-  <div class="hdr" style="background:linear-gradient(180deg,var(--g1),var(--black))">
-    <div>
-      <div style="color:var(--mutl);font-size:11px">Good day,</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;color:var(--wht)" id="dash-biz">TradesPay AI</div>
-        <span style="background:var(--ord);border:1px solid var(--orm);color:var(--or);font-size:9px;font-weight:800;padding:2px 7px;border-radius:999px">PRO</span>
-      </div>
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loading" style="display:none">
+      <div class="spinner"></div>
+      <div style="color:var(--mutl);font-size:13px" id="loading-msg">Loading...</div>
     </div>
-    <div style="width:36px;height:36px;border-radius:18px;background:var(--ord);border:2px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--or)">T</div>
-  </div>
-  <div class="scroll">
-    <div style="background:linear-gradient(135deg,#1a0800,#0f0500);border-radius:14px;padding:16px;border:1px solid rgba(255,92,26,0.2);margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between">
-        <div><div style="color:var(--mutl);font-size:9px;font-weight:700;letter-spacing:1.5px">TOTAL INVOICED</div><div style="color:var(--wht);font-size:34px;font-weight:800;font-family:'Bebas Neue',sans-serif;margin-top:2px">$0</div></div>
-        <div style="text-align:right"><div style="color:var(--mutl);font-size:9px;font-weight:700;letter-spacing:1.5px">COLLECTED</div><div style="color:var(--grn);font-size:22px;font-weight:800;font-family:'Bebas Neue',sans-serif;margin-top:2px">$0</div></div>
-      </div>
-    </div>
-    
-    <div style="margin-bottom:14px; margin-top:20px;">
-      <div style="font-size:14px;font-weight:800;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:var(--wht);margin-bottom:9px">CREATE INVOICE</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-        <button onclick="showScreen('s-voice')" style="background:linear-gradient(135deg,var(--or2),var(--or));border:none;border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center;box-shadow:0 4px 16px rgba(255,92,26,0.3)"><div style="font-size:26px">🎤</div><div style="color:#fff;font-size:12px;font-weight:800;margin-top:3px">Voice</div></button>
-        <button style="background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center"><div style="font-size:26px">📸</div><div style="color:var(--wht);font-size:12px;font-weight:800;margin-top:3px">Photo</div></button>
-        <button style="background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center"><div style="font-size:26px">✏️</div><div style="color:var(--wht);font-size:12px;font-weight:800;margin-top:3px">Manual</div></button>
-      </div>
-    </div>
-  </div>
-  <div class="bnav" id="bnav-dash"></div>
-</div>
 
-<div id="s-voice" class="screen">
-  <div class="hdr"><button class="back" onclick="showScreen('s-dashboard')">← Back</button><div class="hdr-title">🎤 VOICE INVOICE</div><div style="width:50px"></div></div>
-  <div class="scroll">
-    <div id="vi-idle" style="text-align:center;padding-top:10px">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--wht);margin-bottom:6px">SPEAK YOUR JOB</div>
-      <div style="color:var(--mutl);font-size:13px;margin-bottom:32px">Tap and describe the completed work</div>
-      <div style="position:relative;width:140px;height:140px;margin:0 auto 32px">
-        <div id="pulse-ring" style="position:absolute;inset:0;border-radius:50%;background:var(--ord);transition:transform 0.3s"></div>
-        <button onclick="startRec()" id="rec-btn" style="position:relative;width:140px;height:140px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,var(--or2),var(--or));display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(255,92,26,0.45)">
-          <span id="rec-icon" style="font-size:44px">🎤</span>
-          <span id="rec-lbl" style="color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;margin-top:3px">TAP TO START</span>
+    <!-- ══ SCREEN: LOGIN ══════════════════════════ -->
+    <div id="s-login" class="screen active" style="justify-content:center;padding:28px 20px;overflow-y:auto">
+      <div style="text-align:center;margin-bottom:36px">
+        <div
+          style="width:68px;height:68px;border-radius:20px;background:var(--ord);border:2px solid var(--orm);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 14px">
+          ⚡</div>
+        <div style="font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--wht);letter-spacing:-1px">
+          Trades<span style="color:var(--or)">Pay</span> AI</div>
+        <div style="color:var(--mutl);font-size:13px;margin-top:6px">Invoice & Get Paid. Hands Free.</div>
+      </div>
+
+      <div class="card">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--wht);margin-bottom:3px">
+          Welcome back</div>
+        <div style="color:var(--mutl);font-size:12px;margin-bottom:20px">Sign in to continue</div>
+
+        <!-- OAUTH BUTTONS -->
+        <button class="oauth-btn" onclick="signInWithProvider('google')">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4" />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853" />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                fill="#FBBC05" />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                fill="#EA4335" />
+            </svg>
+          </span>
+          Continue with Google
         </button>
+
+        <button class="oauth-btn" onclick="signInWithProvider('linkedin_oidc')">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0A66C2">
+              <path
+                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
+          </span>
+          Continue with LinkedIn
+        </button>
+
+        <div class="oauth-divider"><span>or sign in with email</span></div>
+
+        <label class="label">EMAIL</label>
+        <input class="inp" id="login-email" type="email" placeholder="you@email.com" autocomplete="email" />
+        <label class="label">PASSWORD</label>
+        <input class="inp" id="login-pw" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+        <button class="btn-primary" onclick="signInEmail()">Sign In →</button>
+
+        <div style="text-align:center;margin-top:4px">
+          <span style="color:var(--mut);font-size:12px">No account? </span>
+          <button onclick="go('s-register')"
+            style="color:var(--or);background:none;border:none;font-size:12px;font-weight:700;cursor:pointer">Create one
+            →</button>
+        </div>
       </div>
-      <div class="card" style="text-align:left">
-        <div style="color:var(--mutl);font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:8px">EXAMPLES</div>
-        <div style="color:var(--mutl);font-size:12px;line-height:2">"Charge Mike $1,500 for HVAC install"<br/>"Invoice Sarah $800 roof repair"</div>
+
+      <div style="text-align:center;margin-top:16px">
+        <a href="/privacy"
+          style="color:var(--mut);font-size:11px;text-decoration:none;font-family:'DM Mono',monospace">Privacy
+          Policy</a>
+        <span style="color:var(--mut);font-size:11px;margin:0 8px">·</span>
+        <a href="mailto:support@srdgintel.com"
+          style="color:var(--mut);font-size:11px;text-decoration:none;font-family:'DM Mono',monospace">Support</a>
       </div>
     </div>
-    
-    <div id="vi-text" style="display:none">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--wht);margin-bottom:6px">DESCRIBE THE JOB</div>
-      <div style="color:var(--mutl);font-size:12px;margin-bottom:16px">AI will build the full invoice automatically</div>
-      <div class="card"><textarea id="voice-txt" style="background:var(--g3);border:1px solid var(--g4);border-radius:8px;padding:10px;color:var(--wht);font-size:13px;width:100%;outline:none;min-height:90px;resize:none" placeholder='"Charge Mike $1500 for HVAC install"'></textarea></div>
-      <button class="btn-primary" onclick="processVoice()">🤖 Generate Invoice with AI</button>
-      <button class="btn-ghost" onclick="resetVoice()">Start Over</button>
+
+    <!-- ══ SCREEN: REGISTER ═══════════════════════ -->
+    <div id="s-register" class="screen" style="padding:24px 20px;justify-content:center;overflow-y:auto">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--wht)">Create Account</div>
+        <div style="color:var(--mutl);font-size:12px;margin-top:4px">Free · 3 invoices/month to start</div>
+      </div>
+      <div class="card">
+        <!-- OAUTH BUTTONS -->
+        <button class="oauth-btn" onclick="signInWithProvider('google')">
+          <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4" />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853" />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                fill="#FBBC05" />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                fill="#EA4335" />
+            </svg></span>
+          Sign up with Google
+        </button>
+        <button class="oauth-btn" onclick="signInWithProvider('linkedin_oidc')">
+          <span class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="#0A66C2">
+              <path
+                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg></span>
+          Sign up with LinkedIn
+        </button>
+
+        <div class="oauth-divider"><span>or create with email</span></div>
+
+        <label class="label">BUSINESS NAME</label>
+        <input class="inp" id="reg-biz" placeholder="e.g. Mike's Electric" />
+        <label class="label">EMAIL</label>
+        <input class="inp" id="reg-email" type="email" placeholder="you@email.com" />
+        <label class="label">PASSWORD</label>
+        <input class="inp" id="reg-pw" type="password" placeholder="Min 8 characters" />
+        <button class="btn-primary" onclick="signUpEmail()">Create Account →</button>
+        <div style="text-align:center;margin-top:4px">
+          <span style="color:var(--mut);font-size:12px">Have account? </span>
+          <button onclick="go('s-login')"
+            style="color:var(--or);background:none;border:none;font-size:12px;font-weight:700;cursor:pointer">Sign in
+            →</button>
+        </div>
+        <div style="text-align:center;margin-top:12px">
+          <span style="color:var(--mut);font-size:11px">By signing up you agree to our </span>
+          <a href="/privacy" style="color:var(--or);font-size:11px;text-decoration:none">Privacy Policy</a>
+        </div>
+      </div>
     </div>
-    
-    <div id="vi-proc" style="display:none;text-align:center;padding-top:60px"><div style="font-size:60px;margin-bottom:16px">🤖</div><div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:var(--wht);margin-bottom:6px">BUILDING INVOICE...</div><div style="color:var(--mutl);font-size:12px">Qwen AI is reading your description</div></div>
-    
-    <div id="vi-prev" style="display:none">
-      <div style="color:var(--grn);font-size:10px;font-weight:800;letter-spacing:2px;margin-bottom:6px">✅ INVOICE READY</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--wht);margin-bottom:16px">REVIEW & SAVE</div>
-      <div id="vi-card" style="margin-bottom:14px"></div>
-      <div style="background:var(--ord);border-radius:8px;padding:9px;margin-bottom:14px;text-align:center"><span style="color:var(--or);font-size:11px;font-weight:600" id="vi-conf">🤖 AI Confidence: 92%</span></div>
-      <button class="btn-primary" onclick="saveVoiceInv()">💾 Save Invoice</button>
-      <button class="btn-ghost" onclick="resetVoice()">Start Over</button>
+
+    <!-- ══ SCREEN: DASHBOARD ══════════════════════ -->
+    <div id="s-dashboard" class="screen">
+      <div class="hdr" style="background:linear-gradient(180deg,var(--g1),var(--black))">
+        <div>
+          <div style="color:var(--mutl);font-size:11px">Good day,</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--wht)" id="dash-biz">
+              TradesPay AI</div>
+            <span class="tag tag-pro" id="dash-plan">FREE</span>
+          </div>
+        </div>
+        <div id="dash-avatar"
+          style="width:36px;height:36px;border-radius:18px;background:var(--ord);border:2px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--or);cursor:pointer"
+          onclick="go('s-profile')">?</div>
+      </div>
+      <div class="scroll">
+        <div
+          style="background:linear-gradient(135deg,#1a0800,#0f0500);border-radius:14px;padding:16px;border:1px solid rgba(255,92,26,0.2);margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="color:var(--mutl);font-size:9px;font-weight:700;letter-spacing:1.5px">TOTAL INVOICED</div>
+              <div
+                style="color:var(--wht);font-size:36px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:-2px;margin-top:2px"
+                id="stat-total">₦0</div>
+            </div>
+            <div style="text-align:right">
+              <div style="color:var(--mutl);font-size:9px;font-weight:700;letter-spacing:1.5px">COLLECTED</div>
+              <div style="color:var(--grn);font-size:22px;font-weight:800;font-family:'Syne',sans-serif;margin-top:2px"
+                id="stat-paid">₦0</div>
+            </div>
+          </div>
+          <!-- Mini Chart -->
+          <div style="display:flex; gap:4px; height:30px; align-items:flex-end; margin-top:12px; opacity:0.6">
+             <div style="flex:1; background:var(--g3); height:40%; border-radius:2px"></div>
+             <div style="flex:1; background:var(--g3); height:60%; border-radius:2px"></div>
+             <div style="flex:1; background:var(--g3); height:50%; border-radius:2px"></div>
+             <div style="flex:1; background:var(--or); height:85%; border-radius:2px"></div>
+          </div>
+        </div>
+
+        <div class="card glass" style="margin-bottom:14px; border-left:3px solid var(--or); padding:10px 14px">
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px">
+                <span style="font-size:14px">🤖</span>
+                <span style="font-size:10px; font-weight:800; color:var(--or); letter-spacing:1px">AI INSIGHT</span>
+            </div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.7); line-height:1.4">
+                You have <span style="color:var(--wht); font-weight:700">3 overdue invoices</span>. AI is currently chasing these via WhatsApp.
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px">
+          <div class="card" style="padding:10px 6px;text-align:center;margin:0">
+            <div style="font-size:18px">🧾</div>
+            <div style="color:var(--wht);font-size:18px;font-weight:800;font-family:'Syne',sans-serif" id="stat-count">0
+            </div>
+            <div style="color:var(--mutl);font-size:9px;font-weight:600">Total</div>
+          </div>
+          <div class="card" style="padding:10px 6px;text-align:center;margin:0">
+            <div style="font-size:18px">✅</div>
+            <div style="color:var(--grn);font-size:18px;font-weight:800;font-family:'Syne',sans-serif" id="stat-pcount">
+              0</div>
+            <div style="color:var(--mutl);font-size:9px;font-weight:600">Paid</div>
+          </div>
+          <div class="card" style="padding:10px 6px;text-align:center;margin:0">
+            <div style="font-size:18px">⏳</div>
+            <div style="color:var(--yel);font-size:18px;font-weight:800;font-family:'Syne',sans-serif" id="stat-pend">0
+            </div>
+            <div style="color:var(--mutl);font-size:9px;font-weight:600">Pending</div>
+          </div>
+          <div class="card" style="padding:10px 6px;text-align:center;margin:0">
+            <div style="font-size:18px">🔴</div>
+            <div style="color:var(--red);font-size:18px;font-weight:800;font-family:'Syne',sans-serif" id="stat-over">0
+            </div>
+            <div style="color:var(--mutl);font-size:9px;font-weight:600">Overdue</div>
+          </div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:14px;font-weight:800;font-family:'Syne',sans-serif;color:var(--wht);margin-bottom:9px">
+            Create Invoice</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <button onclick="go('s-voice')"
+              style="background:linear-gradient(135deg,#ff7a3d,var(--or));border:none;border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center;box-shadow:0 4px 16px rgba(255,92,26,0.3)">
+              <div style="font-size:26px">🎤</div>
+              <div style="color:#fff;font-size:12px;font-weight:800;margin-top:3px">Voice</div>
+              <div style="color:rgba(255,255,255,0.6);font-size:10px">Speak it</div>
+            </button>
+            <button onclick="go('s-photo')"
+              style="background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center">
+              <div style="font-size:26px">📸</div>
+              <div style="color:var(--wht);font-size:12px;font-weight:800;margin-top:3px">Photo</div>
+              <div style="color:var(--mutl);font-size:10px">Snap it</div>
+            </button>
+            <button onclick="go('s-create')"
+              style="background:var(--g2);border:1px solid var(--g3);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center">
+              <div style="font-size:26px">✏️</div>
+              <div style="color:var(--wht);font-size:12px;font-weight:800;margin-top:3px">Manual</div>
+              <div style="color:var(--mutl);font-size:10px">Type it</div>
+            </button>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+            <div style="font-size:14px;font-weight:800;font-family:'Syne',sans-serif;color:var(--wht)">Recent Invoices
+            </div>
+            <button onclick="go('s-invoices')"
+              style="color:var(--or);background:none;border:none;font-size:12px;font-weight:600;cursor:pointer">View All
+              →</button>
+          </div>
+          <div id="dash-invoices">
+            <div style="text-align:center;padding:32px 0;color:var(--mutl);font-size:13px">No invoices yet — create your
+              first one above ⚡</div>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="bnav" id="bnav-dash"></div>
+    </div>
+
+    <!-- ══ SCREEN: INVOICES ════════════════════════ -->
+    <div id="s-invoices" class="screen">
+      <div class="hdr">
+        <div class="hdr-title">Invoices 🧾</div>
+        <button onclick="go('s-create')"
+          style="background:var(--or);color:#fff;border:none;border-radius:999px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer">+
+          New</button>
+      </div>
+      <div
+        style="display:flex;gap:6px;padding:9px 14px;background:var(--g1);border-bottom:1px solid var(--g2);overflow-x:auto;flex-shrink:0">
+        <button onclick="filterInv('all',this)"
+          style="background:var(--or);color:#fff;border:none;border-radius:999px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">ALL</button>
+        <button onclick="filterInv('paid',this)"
+          style="background:var(--g2);color:var(--mutl);border:none;border-radius:999px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">PAID</button>
+        <button onclick="filterInv('overdue',this)"
+          style="background:var(--g2);color:var(--mutl);border:none;border-radius:999px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">OVERDUE</button>
+        <button onclick="filterInv('sent',this)"
+          style="background:var(--g2);color:var(--mutl);border:none;border-radius:999px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">SENT</button>
+        <button onclick="filterInv('draft',this)"
+          style="background:var(--g2);color:var(--mutl);border:none;border-radius:999px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">DRAFT</button>
+      </div>
+      <div class="scroll" id="inv-list">
+        <div style="text-align:center;padding:60px 0;color:var(--mutl)">No invoices found</div>
+      </div>
+      <div class="bnav" id="bnav-inv"></div>
+    </div>
+
+    <!-- ══ SCREEN: VOICE INVOICE ══════════════════ -->
+    <div id="s-voice" class="screen">
+      <div class="hdr">
+        <button class="back" onclick="go('s-dashboard')">← Back</button>
+        <div class="hdr-title">🎤 Voice Invoice</div>
+        <div style="width:50px"></div>
+      </div>
+      <div class="scroll">
+        <div id="voice-idle">
+          <div style="text-align:center;padding-top:10px">
+            <div
+              style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--wht);margin-bottom:6px">
+              Speak your job</div>
+            <div style="color:var(--mutl);font-size:13px;margin-bottom:32px;line-height:1.6">Tap the button and describe
+              the completed job</div>
+            <div style="position:relative;width:140px;height:140px;margin:0 auto 32px">
+              <div id="pulse-ring"
+                style="position:absolute;inset:0;border-radius:50%;background:var(--ord);transform:scale(1);transition:transform 0.3s">
+              </div>
+              <button onclick="startRecord()" id="rec-btn"
+                style="position:relative;width:140px;height:140px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#ff7a3d,var(--or));display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(255,92,26,0.45)">
+                <span id="rec-icon" style="font-size:44px">🎤</span>
+                <span id="rec-lbl"
+                  style="color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;margin-top:3px">TAP TO
+                  START</span>
+              </button>
+            </div>
+            <div class="card" style="text-align:left">
+              <div style="color:var(--mutl);font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:8px">
+                EXAMPLE PHRASES</div>
+              <div style="color:var(--mutl);font-size:12px;line-height:2">
+                "Charge Mike ₦150k for HVAC install, 6hrs labor"<br />
+                "Invoice Sarah ₦80k roof repair, materials included"<br />
+                "Bill Johnson ₦45k panel upgrade 3hrs"
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="voice-transcript" style="display:none">
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--wht);margin-bottom:6px">
+            What did you say?</div>
+          <div style="color:var(--mutl);font-size:12px;margin-bottom:16px">Type your job description — AI builds the
+            full invoice</div>
+          <div class="card">
+            <label class="label">YOUR SPEECH / JOB DESCRIPTION</label>
+            <textarea id="voice-txt"
+              style="background:var(--g3);border:1px solid var(--g4);border-radius:8px;padding:10px;color:var(--wht);font-size:13px;width:100%;outline:none;min-height:90px;resize:none;font-family:'DM Sans',sans-serif"
+              placeholder='e.g. "Charge Mike ₦150k for HVAC install, 6 hours labor"'></textarea>
+          </div>
+          <button class="btn-primary" onclick="processVoice()" id="voice-ai-btn">🤖 Generate Invoice with AI</button>
+          <button class="btn-ghost" onclick="resetVoice()">Record Again</button>
+        </div>
+        <div id="voice-processing" style="display:none;text-align:center;padding-top:60px">
+          <div style="font-size:60px;margin-bottom:16px">🤖</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--wht);margin-bottom:6px">
+            AI is building your invoice...</div>
+          <div style="color:var(--mutl);font-size:12px">Qwen AI is reading your job description</div>
+        </div>
+        <div id="voice-preview" style="display:none">
+          <div style="color:var(--grn);font-size:10px;font-weight:800;letter-spacing:2px;margin-bottom:6px">✅ INVOICE
+            READY</div>
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--wht);margin-bottom:16px">
+            Review & Save</div>
+          <div class="card" id="voice-result-card"></div>
+          <div style="background:var(--ord);border-radius:8px;padding:9px;margin-bottom:14px;text-align:center">
+            <span style="color:var(--or);font-size:11px;font-weight:600" id="voice-confidence">🤖 AI Confidence:
+              92%</span>
+          </div>
+          <button class="btn-primary" onclick="saveVoiceInv()">💾 Save Invoice</button>
+          <button class="btn-ghost" onclick="resetVoice()">Start Over</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: PHOTO INVOICE ══════════════════ -->
+    <div id="s-photo" class="screen">
+      <div class="hdr">
+        <button class="back" onclick="go('s-dashboard')">← Back</button>
+        <div class="hdr-title">📸 Photo Invoice</div>
+        <div style="width:50px"></div>
+      </div>
+      <div class="scroll">
+        <div id="photo-idle">
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--wht);margin-bottom:6px">
+            Snap the job</div>
+          <div style="color:var(--mutl);font-size:12px;margin-bottom:20px">Select a job type — AI analyzes and builds
+            the invoice</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+            <button onclick="document.getElementById('photo-input').click()" class="card"
+              style="border:2px dashed var(--orm);cursor:pointer;text-align:center;padding:18px 10px;background:var(--ord);grid-column:span 2">
+              <div style="font-size:36px;margin-bottom:6px">📸</div>
+              <div style="color:var(--or);font-size:14px;font-weight:800">CLICK TO SNAP OR UPLOAD PHOTO</div>
+              <input type="file" id="photo-input" hidden accept="image/*" onchange="handlePhotoSelect(this)"/>
+            </button>
+            <div style="grid-column:span 2; color:var(--mutl); font-size:10px; font-weight:700; letter-spacing:1px; margin-top:10px">OR USE AI TEMPLATES</div>
+            <button onclick="processPhoto(null, 'HVAC full system install, new ductwork and unit')" class="card"
+              style="border:1px solid var(--g3);cursor:pointer;text-align:center;padding:18px 10px">
+              <div style="font-size:36px;margin-bottom:6px">❄️</div>
+              <div style="color:var(--wht);font-size:12px;font-weight:700">HVAC Install</div>
+            </button>
+            <button onclick="processPhoto(null, '200A electrical panel upgrade with new breakers')" class="card"
+              style="border:1px solid var(--g3);cursor:pointer;text-align:center;padding:18px 10px">
+              <div style="font-size:36px;margin-bottom:6px">⚡</div>
+              <div style="color:var(--wht);font-size:12px;font-weight:700">Electrical</div>
+            </button>
+          </div>
+        </div>
+        <div id="photo-processing" style="display:none;text-align:center;padding-top:60px">
+          <div style="font-size:60px;margin-bottom:14px">🔍</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--wht);margin-bottom:6px">
+            AI is analyzing...</div>
+          <div style="color:var(--mutl);font-size:12px">Qwen Vision is reading the job details</div>
+        </div>
+        <div id="photo-result" style="display:none">
+          <div style="color:var(--grn);font-size:10px;font-weight:800;letter-spacing:2px;margin-bottom:6px">📸 ANALYZED
+          </div>
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--wht);margin-bottom:14px">
+            Invoice Ready</div>
+          <div class="card" id="photo-ai-desc" style="background:var(--g1);margin-bottom:10px"></div>
+          <div class="card" id="photo-result-card"></div>
+          <div style="background:var(--ord);border-radius:8px;padding:9px;margin-bottom:14px;text-align:center">
+            <span style="color:var(--or);font-size:11px;font-weight:600" id="photo-confidence">🤖 Confidence: 88%</span>
+          </div>
+          <button class="btn-primary" onclick="savePhotoInv()">💾 Save Invoice</button>
+          <button class="btn-ghost" onclick="resetPhoto()">Try Another</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: CREATE INVOICE ═════════════════ -->
+    <div id="s-create" class="screen">
+      <div class="hdr">
+        <button class="back" onclick="go('s-dashboard')">← Back</button>
+        <div class="hdr-title">✏️ New Invoice</div>
+        <button onclick="saveManual()"
+          style="color:var(--or);background:none;border:none;font-size:13px;font-weight:700;cursor:pointer">Save</button>
+      </div>
+      <div class="scroll">
+        <div class="card">
+          <label class="label">CLIENT NAME</label>
+          <input class="inp" id="c-client" placeholder="e.g. Mike's Roofing" />
+          <label class="label">JOB DESCRIPTION</label>
+          <input class="inp" id="c-job" placeholder="e.g. HVAC installation" />
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+          <div style="font-size:14px;font-weight:800;font-family:'Syne',sans-serif;color:var(--wht)">Line Items</div>
+          <button onclick="addLine()"
+            style="color:var(--or);background:none;border:none;font-size:12px;font-weight:700;cursor:pointer">+ Add
+            Item</button>
+        </div>
+        <div id="line-items"></div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span
+              style="color:var(--mutl);font-size:12px">Subtotal</span><span id="c-sub"
+              style="color:var(--wht);font-size:12px">₦0</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span
+              style="color:var(--mutl);font-size:12px">Tax (7.5%)</span><span id="c-tax"
+              style="color:var(--wht);font-size:12px">₦0</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:800;color:var(--wht)">TOTAL</span>
+            <span id="c-total"
+              style="color:var(--or);font-size:22px;font-weight:800;font-family:'Syne',sans-serif">₦0</span>
+          </div>
+        </div>
+        <button onclick="saveManual()" class="btn-primary">💾 Save Invoice</button>
+        <button onclick="go('s-dashboard')" class="btn-ghost">Cancel</button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: CLIENTS ════════════════════════ -->
+    <div id="s-clients" class="screen">
+      <div class="hdr">
+        <div class="hdr-title">Clients 👷</div>
+        <button
+          style="background:var(--or);color:#fff;border:none;border-radius:999px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer">+
+          Add</button>
+      </div>
+      <div class="scroll" id="clients-list">
+        <div style="text-align:center;padding:60px 0;color:var(--mutl)">No clients yet — they appear after your first
+          invoice</div>
+      </div>
+      <div class="bnav" id="bnav-clients"></div>
+    </div>
+
+    <!-- ══ SCREEN: PROFILE ════════════════════════ -->
+    <div id="s-profile" class="screen">
+      <div class="hdr">
+        <div class="hdr-title">Profile ⚙️</div>
+      </div>
+      <div class="scroll">
+        <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div id="profile-avatar"
+            style="width:50px;height:50px;border-radius:25px;background:var(--ord);border:2px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--or)">
+            ?</div>
+          <div>
+            <div id="profile-name"
+              style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--wht)">Loading...</div>
+            <div id="profile-email" style="color:var(--mutl);font-size:12px;margin-top:2px">...</div>
+            <span class="tag tag-pro" style="display:inline-block;margin-top:5px" id="profile-plan">FREE</span>
+          </div>
+        </div>
+
+        <!-- Plans -->
+        <div style="font-size:14px;font-weight:800;font-family:'Syne',sans-serif;color:var(--wht);margin-bottom:10px">
+          Upgrade Your Plan</div>
+        <div class="card" style="border:1px solid var(--orm);margin-bottom:10px;position:relative">
+          <div
+            style="position:absolute;top:-10px;right:12px;background:var(--or);color:#fff;font-size:9px;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:999px">
+            ⚡ 20 SPOTS LEFT</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--or)">LIFETIME</span>
+            <span style="color:var(--or);font-size:18px;font-weight:700">$299</span>
+          </div>
+          <div style="color:var(--mutl);font-size:11px;margin-bottom:10px;font-family:'DM Mono',monospace">one-time ·
+            all features forever</div>
+          <div style="color:var(--mutl);font-size:12px;line-height:1.8;margin-bottom:12px">✓ Voice & Photo
+            invoicing<br />✓ AI payment chaser<br />✓ Follow-up emails<br />✓ All future features free</div>
+          <a href="https://flutterwave.com/pay/tradespay-lifetime" target="_blank"
+            style="display:block;text-align:center;background:var(--or);color:#fff;padding:12px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none">Grab
+            Lifetime Deal →</a>
+        </div>
+        <div class="card" style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--wht)">PRO</span>
+            <span style="color:var(--wht);font-size:14px;font-weight:700">$29/mo</span>
+          </div>
+          <div style="color:var(--mutl);font-size:12px;margin-bottom:10px">Voice, Photo invoicing + unlimited invoices
+          </div>
+          <a href="https://flutterwave.com/pay/tradespay-pro" target="_blank"
+            style="display:block;text-align:center;border:1px solid var(--g3);color:var(--wht);padding:10px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none">Get
+            Pro →</a>
+        </div>
+        <div class="card" style="margin-bottom:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--wht)">PREMIUM</span>
+            <span style="color:var(--wht);font-size:14px;font-weight:700">$79/mo</span>
+          </div>
+          <div style="color:var(--mutl);font-size:12px;margin-bottom:10px">Everything + AI chaser + weekly reports</div>
+          <a href="https://flutterwave.com/pay/tradespaypremium" target="_blank"
+            style="display:block;text-align:center;border:1px solid var(--g3);color:var(--wht);padding:10px;border-radius:999px;font-size:12px;font-weight:700;text-decoration:none">Get
+            Premium →</a>
+        </div>
+
+        <!-- Links -->
+        <div class="card" style="margin-bottom:10px">
+          <a href="https://www.srdgintel.com/p/privacy-policy-for-tradespay-ai.html" target="_blank"
+            style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;padding:4px 0">
+            <span style="color:var(--wht);font-size:14px">🔒 Privacy Policy</span>
+            <span style="color:var(--mutl)">→</span>
+          </a>
+          <div class="divider"></div>
+          <a href="mailto:support@srdgintel.com"
+            style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;padding:4px 0">
+            <span style="color:var(--wht);font-size:14px">📧 Support</span>
+            <span style="color:var(--mutl)">→</span>
+          </a>
+          <div class="divider"></div>
+          <a href="https://tradespay.srdgintel.com" target="_blank"
+            style="display:flex;justify-content:space-between;align-items:center;text-decoration:none;padding:4px 0">
+            <span style="color:var(--wht);font-size:14px">🌐 Website</span>
+            <span style="color:var(--mutl)">→</span>
+          </a>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--or);margin-bottom:12px">AUTO-PILOT SETTINGS</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--g3);border-radius:8px;margin-bottom:12px">
+            <div>
+              <div style="font-weight:700;font-size:13px;color:var(--wht)">🚀 AI Sales Auto-Pilot</div>
+              <div style="color:var(--mutl);font-size:10px">Automatically reply to DMs & close sales</div>
+            </div>
+            <input type="checkbox" checked style="width:20px;height:20px;accent-color:var(--or)" onchange="toggleAP(this.checked)"/>
+          </div>
+          
+          <a id="connect-ig" href="https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=2035173717383732&redirect_uri=https://tradespay.srdgintel.com/&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;background:linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);padding:12px;border-radius:8px;margin-bottom:8px">
+            <span style="color:#fff;font-weight:700;font-size:13px">📸 Connect Instagram</span>
+            <span style="color:#fff;font-size:14px">→</span>
+          </a>
+          
+          <a id="connect-wa" href="https://wa.me/settings" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;background:linear-gradient(135deg, #25D366 0%, #128C7E 100%);padding:12px;border-radius:8px;margin-bottom:8px">
+            <span style="color:#fff;font-weight:700;font-size:13px">💬 Connect WhatsApp</span>
+            <span style="color:#fff;font-size:14px">→</span>
+          </a>
+
+          <div id="wa-status" style="display:none;align-items:center;justify-content:space-between;background:rgba(34,197,94,0.1);padding:12px;border-radius:8px;border:1px solid var(--grn)">
+            <span style="color:var(--grn);font-weight:700;font-size:13px">💬 WhatsApp Connected</span>
+            <span style="color:var(--grn);font-size:10px">Active</span>
+          </div>
+
+          <div id="ig-status" style="display:none;align-items:center;justify-content:space-between;background:rgba(255,100,100,0.1);padding:12px;border-radius:8px;border:1px solid #e6683c">
+            <span style="color:#e6683c;font-weight:700;font-size:13px">📸 Instagram Connected</span>
+            <span style="color:#e6683c;font-size:10px">Active</span>
+          </div>
+        </div>
+
+        <button onclick="signOut()"
+          style="background:transparent;color:var(--red);border:1px solid var(--red);border-radius:999px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-top:8px;font-family:'DM Sans',sans-serif">Sign
+          Out</button>
+        <div style="text-align:center;margin-top:16px;color:var(--mutl);font-size:11px;font-family:'DM Mono',monospace">
+          TradesPay AI v1.0 · © 2026 SRDG Intel</div>
+      </div>
+      <div class="bnav" id="bnav-profile"></div>
+    </div>
+
+    <!-- ══ SCREEN: MESSAGES ════════════════════════ -->
+    <div id="s-messages" class="screen">
+      <div class="hdr"><div class="hdr-title">AUTO-PILOT INBOX 🤖</div></div>
+      <div class="scroll" id="msg-threads" style="padding:0">
+        <div style="text-align:center;padding:60px 24px">
+          <div style="font-size:40px;margin-bottom:12px">📥</div>
+          <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--wht)">No Conversations</div>
+          <p style="color:var(--mutl);font-size:12px;margin-top:4px">When customers DM you on Instagram or WhatsApp, they will appear here.</p>
+        </div>
+      </div>
+      <div class="bnav" id="bnav-msg"></div>
+    </div>
+
+    <!-- ══ SCREEN: CHAT ════════════════════════════ -->
+    <div id="s-chat" class="screen">
+      <div class="hdr"><button class="back" onclick="go('s-messages')">← Back</button><div class="hdr-title" id="chat-title">Chat</div><div style="width:50px"></div></div>
+      <div class="scroll" id="chat-scroller" style="background:var(--black);display:flex;flex-direction:column;gap:12px;padding:16px"></div>
+      <div style="background:var(--g1);padding:12px 16px;border-top:1px solid var(--g2);display:flex;gap:10px;align-items:center">
+        <input class="inp" id="chat-input" placeholder="Type a professional reply..." style="margin:0;flex:1"/>
+        <button onclick="sendReply()" style="background:var(--or);border:none;width:42px;height:42px;border-radius:50%;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">➤</button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: ANALYTICS ════════════════════════ -->
+    <div id="s-analytics" class="screen">
+      <div class="hdr">
+        <div class="hdr-title">Analytics & Profits 📈</div>
+        <div style="font-size:10px; color:var(--mutl); weight:700">LIVE DATA</div>
+      </div>
+      <div class="scroll">
+         <div style="margin-bottom:20px">
+           <div class="stat-mini">REVENUE TREND</div>
+           <div class="chart-box">
+             <div class="chart-bar-wrap"><div class="chart-bar" style="height:40%"></div><span class="chart-lbl">W1</span></div>
+             <div class="chart-bar-wrap"><div class="chart-bar" style="height:65%"></div><span class="chart-lbl">W2</span></div>
+             <div class="chart-bar-wrap"><div class="chart-bar" style="height:50%"></div><span class="chart-lbl">W3</span></div>
+             <div class="chart-bar-wrap"><div class="chart-bar active" style="height:85%"></div><span class="chart-lbl">Now</span></div>
+           </div>
+         </div>
+         
+         <div class="bento-grid bento-2" style="margin-bottom:20px">
+           <div class="card glass" style="margin:0">
+             <div class="stat-mini">TOTAL SALES</div>
+             <div class="stat-val" id="ana-total">₦0</div>
+           </div>
+           <div class="card glass" style="margin:0">
+             <div class="stat-mini">COLLECTED</div>
+             <div class="stat-val" style="color:var(--grn)" id="ana-paid">₦0</div>
+           </div>
+         </div>
+
+         <div style="margin-bottom:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <div class="stat-mini">TOP CLIENTS</div>
+                <div style="font-size:9px; color:var(--mutl)">LIFETIME SPEND</div>
+            </div>
+            <div id="ana-clients"></div>
+         </div>
+
+         <div style="margin-bottom:20px">
+            <div class="stat-mini">OVERDUE REcovery</div>
+            <div id="ana-overdue"></div>
+         </div>
+      </div>
+      <div class="bnav" id="bnav-ana"></div>
+    </div>
+
+    <!-- ══ SCREEN: AUTO-PILOT CONFIG ═══════════════ -->
+    <div id="s-ap-config" class="screen">
+      <div class="hdr">
+        <button class="back" onclick="go('s-messages')">← Back</button>
+        <div class="hdr-title">🤖 AI Training Hub</div>
+        <div style="width:50px"></div>
+      </div>
+      <div class="scroll">
+        <div class="card glass">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <div style="font-size:24px">🧠</div>
+                <div>
+                    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800">Identity Training</div>
+                    <div style="font-size:11px;color:var(--mutl)">Teach AI about your business</div>
+                </div>
+            </div>
+            <label class="label">BUSINESS SERVICE TYPE</label>
+            <input class="inp" id="ap-service" placeholder="e.g. Electrical Contracting, Plumbing"/>
+            <label class="label">PRICING & RATES</label>
+            <textarea class="inp" id="ap-pricing" style="min-height:80px;resize:none" placeholder="Standard Callout: ₦50,000&#10;Emergency: ₦80,000"></textarea>
+        </div>
+
+        <div class="card glass">
+            <div class="stat-mini">TONE OF VOICE</div>
+            <div class="bento-grid bento-3" style="margin-top:10px">
+                <button onclick="setTone('prof')" id="tone-prof" class="card" style="margin:0;padding:12px 4px;text-align:center;border-color:var(--orm)">
+                    <div style="font-size:20px">💼</div>
+                    <div style="font-size:9px;font-weight:800;margin-top:4px">PRO</div>
+                </button>
+                <button onclick="setTone('friend')" id="tone-friend" class="card" style="margin:0;padding:12px 4px;text-align:center;opacity:0.4">
+                    <div style="font-size:20px">😊</div>
+                    <div style="font-size:9px;font-weight:800;margin-top:4px">FRIENDLY</div>
+                </button>
+                <button onclick="setTone('fast')" id="tone-fast" class="card" style="margin:0;padding:12px 4px;text-align:center;opacity:0.4">
+                    <div style="font-size:20px">⚡</div>
+                    <div style="font-size:9px;font-weight:800;margin-top:4px">FAST</div>
+                </button>
+            </div>
+        </div>
+
+        <div class="card glass" style="border-left:4px solid var(--or)">
+            <div class="stat-mini" style="color:var(--or)">AI SAMPLE OUTPUT</div>
+            <div style="background:var(--black);padding:12px;border-radius:6px;font-size:12px;line-height:1.6;color:rgba(255,255,255,0.8);font-style:italic">
+                "Hi Mike! Thanks for reaching out. I can confirm our standard visit fee is <span style="color:var(--or);font-weight:700">₦50,000</span>. Shall I book you in for 10am tomorrow?"
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="deployTraining()">Deploy AI Training 🚀</button>
+      </div>
+    </div>
+
+  </div><!-- end #app -->
+
+  <!-- EMAIL DRAFT MODAL -->
+  <div id="email-modal" class="loading-overlay" style="display:none; padding:20px">
+    <div class="card glass" style="width:100%; max-width:380px; max-height:80vh; display:flex; flex-direction:column">
+      <div style="font-family:'Syne',sans-serif; font-size:16px; font-weight:800; color:var(--or); margin-bottom:12px">🤖 AI DRAFTED EMAIL</div>
+      <div class="scroll" style="background:var(--black); border:1px solid var(--g3); border-radius:8px; padding:12px; font-size:12px; line-height:1.6; margin-bottom:16px">
+        <div id="draft-subject" style="font-weight:700; border-bottom:1px solid var(--g3); padding-bottom:8px; margin-bottom:8px">Subject: ...</div>
+        <div id="draft-body">Loading AI draft...</div>
+      </div>
+      <div style="display:flex; gap:10px">
+        <button class="btn-primary" id="btn-send-draft" style="flex:2">✅ Approve & Send</button>
+        <button class="btn-ghost" onclick="document.getElementById('email-modal').style.display='none'" style="flex:1">Cancel</button>
+      </div>
     </div>
   </div>
-</div>
 
-</div>
+  <script src="config.js"></script>
+  <script>
+    // ── SUPABASE CONFIG (loaded from config.js) ───────────────────────────
+    const SUPABASE_URL = window.SUPABASE_URL;
+    const SUPABASE_ANON = window.SUPABASE_ANON;
 
-<script>
-// VIP Bypass & Init
-window.addEventListener('DOMContentLoaded',()=>{
-  localStorage.setItem('tp_token', 'testing-bypass-token');
-  const bnav = `<button class="bnav-btn" onclick="showScreen('s-dashboard')"><span style="font-size:20px">🏠</span><span class="bnav-lbl" style="color:var(--or)">Home</span><div class="bnav-dot"></div></button>`;
-  document.getElementById('bnav-dash').innerHTML = bnav;
-});
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-function showToast(msg){const e=document.getElementById('toast');if(!e)return;e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+    // ── STATE ─────────────────────────────────────
+    var user = null;
+    var invoices = [];
+    var voiceData = null;
+    var photoData = null;
+    var lineCount = 0;
+    var jwtToken = null;
 
-// Currency Formatter
-const formatMoney = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-window.fmt = (n, cur) => (cur || '$') + formatMoney(n);
+    // ── INIT ──────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Check for OAuth callback (handled inherently by Supabase v2)
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        showLoading('Signing you in...');
+      }
 
-// Voice Engine
-let recognition = null;
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'en-US';
-}
+      // Check existing session
+      const { data: { session } } = await sb.auth.getSession();
+      
+      hideLoading();
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      if (session) {
+        await handleSession(session);
+      } else {
+        go('s-login');
+      }
 
-function startRec(){
-  const btn=document.getElementById('rec-btn'),icon=document.getElementById('rec-icon'),lbl=document.getElementById('rec-lbl'),ring=document.getElementById('pulse-ring');
-  if (!recognition) {
-       showToast("Speech recognition not supported here. Type it manually!");
-       document.getElementById('vi-idle').style.display='none'; document.getElementById('vi-text').style.display='block'; return;
-  }
-  icon.textContent='⏹';lbl.textContent='TAP TO STOP'; btn.style.background='linear-gradient(135deg,#c0392b,var(--red))'; ring.style.animation='pulse 1s infinite';
-  try { recognition.start(); } catch(e){}
-
-  recognition.onresult = (e) => {
-      let t = ''; for (let i = e.resultIndex; i < e.results.length; ++i) if (e.results[i].isFinal) t += e.results[i][0].transcript;
-      if (t) document.getElementById('voice-txt').value = t;
-  };
-  recognition.onend = stopRecUiState;
-  btn.onclick = () => { recognition.stop(); stopRecUiState(); };
-  function stopRecUiState() {
-      icon.textContent='🎤';lbl.textContent='TAP TO START'; btn.style.background='linear-gradient(135deg,var(--or2),var(--or))'; ring.style.animation='none';
-      document.getElementById('vi-idle').style.display='none'; document.getElementById('vi-text').style.display='block'; btn.onclick=startRec;
-  }
-}
-
-// AI Processor with Premium Receipt & Currency Fix
-let voiceData = null;
-async function processVoice() {
-  const txt = document.getElementById('voice-txt').value;
-  if (!txt.trim()) return showToast('Please describe the job');
-  
-  document.getElementById('vi-text').style.display = 'none';
-  document.getElementById('vi-proc').style.display = 'block';
-  
-  try {
-    const res = await fetch('/api/ai/voice-to-invoice', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript: txt })
+      // Listen for auth changes
+      sb.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          await handleSession(session);
+        } else if (event === 'SIGNED_OUT') {
+          user = null;
+          jwtToken = null;
+          go('s-login');
+        }
+      });
     });
-    
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    voiceData = data.invoice || data;
-    
-    document.getElementById('vi-proc').style.display = 'none';
-    document.getElementById('vi-prev').style.display = 'block';
-    document.getElementById('vi-conf').textContent = `🤖 Confidence: ${Math.round((voiceData.confidence || 0.9) * 100)}%`;
-    
-    let curr = voiceData.currency || '$';
-    if (curr.toUpperCase().includes('NGN') || curr.includes('naira')) curr = '₦';
-    if (curr.toUpperCase().includes('USD') || curr.includes('dollar')) curr = '$';
 
-    const invNum = Math.floor(100000 + Math.random() * 900000);
-    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    const totalNum = Number(voiceData.total || 0);
-    const subtotalNum = voiceData.subtotal ? Number(voiceData.subtotal) : (totalNum / 1.075);
-    const taxNum = voiceData.taxAmount ? Number(voiceData.taxAmount) : (totalNum - subtotalNum);
+    async function handleSession(session) {
+      user = session.user;
+      jwtToken = session.access_token;
+      updateProfileUI();
+      await fetchExtendedProfile();
+      await loadInvoices();
+      go('s-dashboard');
+    }
 
-    const itemsHtml = (voiceData.lineItems || []).map(it => `
-      <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:13px;">
-        <span style="color:var(--wht); flex:1; padding-right:10px;">${it.description}</span>
-        <span style="color:var(--mutl); width:30px; text-align:right">x${it.quantity || 1}</span>
-        <span style="color:var(--wht); width:80px; text-align:right; font-weight:700">${curr}${formatMoney(it.amount || it.amt || 0)}</span>
+    async function fetchExtendedProfile() {
+      try {
+        const { data, error } = await sb.from('user_profiles').select('*').eq('id', user.id).single();
+        if (data) {
+          const igBtn = document.getElementById('connect-ig');
+          const waBtn = document.getElementById('connect-wa');
+          const igStat = document.getElementById('ig-status');
+          const waStat = document.getElementById('wa-status');
+
+          if (data.instagram_id || data.instagram_handle) {
+            if (igBtn) igBtn.style.display = 'none';
+            if (igStat) igStat.style.display = 'flex';
+          }
+          if (data.whatsapp_id || data.whatsapp_number) {
+            if (waBtn) waBtn.style.display = 'none';
+            if (waStat) waStat.style.display = 'flex';
+          }
+        }
+      } catch (e) {
+        console.warn("Profile fetch error:", e);
+      }
+    }
+
+    // ── AUTH FUNCTIONS ────────────────────────────
+    async function signInWithProvider(provider) {
+      showLoading('Redirecting...');
+      const { error } = await sb.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: window.location.origin + window.location.pathname,
+        }
+      });
+      if (error) { hideLoading(); showToast('Sign in failed: ' + error.message); }
+    }
+
+    async function signInEmail() {
+      const email = document.getElementById('login-email').value.trim();
+      const pw = document.getElementById('login-pw').value;
+      if (!email || !pw) return showToast('Please fill in all fields');
+      showLoading('Signing in...');
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+      hideLoading();
+      if (error) showToast(error.message);
+    }
+
+    async function signUpEmail() {
+      const biz = document.getElementById('reg-biz').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const pw = document.getElementById('reg-pw').value;
+      if (!biz || !email || !pw) return showToast('Please fill in all fields');
+      if (pw.length < 8) return showToast('Password must be 8+ characters');
+      showLoading('Creating account...');
+      const { data, error } = await sb.auth.signUp({
+        email, password: pw,
+        options: { data: { business_name: biz } }
+      });
+      hideLoading();
+      if (error) { showToast(error.message); return; }
+      showToast('✅ Check your email to confirm your account!');
+    }
+
+    async function signOut() {
+      await sb.auth.signOut();
+      invoices = [];
+      go('s-login');
+      showToast('Signed out');
+    }
+
+    // ── PROFILE UI ────────────────────────────────
+    function updateProfileUI() {
+      if (!user) return;
+      const name = user.user_metadata?.business_name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Contractor';
+      const initial = name.charAt(0).toUpperCase();
+      const email = user.email || '';
+
+      // Dashboard
+      const dashBiz = document.getElementById('dash-biz');
+      const dashAvatar = document.getElementById('dash-avatar');
+      if (dashBiz) dashBiz.textContent = name;
+      if (dashAvatar) dashAvatar.textContent = initial;
+
+      // Profile screen
+      const profileName = document.getElementById('profile-name');
+      const profileEmail = document.getElementById('profile-email');
+      const profileAvatar = document.getElementById('profile-avatar');
+      if (profileName) profileName.textContent = name;
+      if (profileEmail) profileEmail.textContent = email;
+      if (profileAvatar) profileAvatar.textContent = initial;
+
+      // Render navs
+      ['bnav-dash', 'bnav-inv', 'bnav-msg', 'bnav-ana', 'bnav-profile'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = navHTML(['dashboard', 'invoices', 'messages', 'analytics', 'profile'][i]);
+      });
+    }
+
+    // ── LOAD INVOICES ─────────────────────────────
+    async function loadInvoices() {
+      if (!user) return;
+      try {
+        const res = await fetch(`${window.ROUTES.invoices()}`, {
+          headers: { 'Authorization': `Bearer ${jwtToken}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          invoices = data.invoices || [];
+          renderDash();
+          renderInvoices('all');
+        }
+      } catch (e) {
+        // Use local invoices if API fails
+        renderDash();
+      }
+    }
+
+    // ── NAVIGATION ────────────────────────────────
+    function go(screen) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById(screen);
+      if (el) el.classList.add('active');
+      if (screen === 's-dashboard') renderDash();
+      if (screen === 's-invoices') renderInvoices('all');
+      if (screen === 's-analytics') renderAnalytics();
+      if (screen === 's-create') initCreate();
+      if (screen === 's-profile') updateProfileUI();
+      if (screen === 's-messages') renderMessages();
+      if (screen === 's-ap-config') initAPConfig();
+    }
+
+    // ── BOTTOM NAV ────────────────────────────────
+    function navHTML(active) {
+      const tabs = [
+        ['dashboard', '🏠', 'Home'], 
+        ['invoices', '🧾', 'Invoices'], 
+        ['messages', '🤖', 'Auto-Pilot'], 
+        ['analytics', '📈', 'Stats'], 
+        ['profile', '⚙️', 'Pro']
+      ];
+      return tabs.map(t => {
+        const a = t[0] === active;
+        return `<button class="bnav-btn" onclick="go('s-${t[0]}')">`
+          + `<span class="bnav-icon" style="opacity:${a ? 1 : 0.4}">${t[1]}</span>`
+          + `<span class="bnav-lbl" style="color:${a ? 'var(--or)' : 'var(--mut)'}">${t[2]}</span>`
+          + (a ? '<div class="bnav-dot"></div>' : '')
+          + '</button>';
+      }).join('');
+    }
+
+    // ── HELPERS ───────────────────────────────────
+    function fmt(n) { return '₦' + Math.round(n).toLocaleString(); }
+    function scColor(s) { return { paid: 'var(--grn)', overdue: 'var(--red)', sent: 'var(--yel)', draft: 'var(--mutl)' }[s] || 'var(--mutl)'; }
+    function scBg(s) { return { paid: 'var(--grnd)', overdue: 'var(--redd)', sent: 'var(--yeld)', draft: 'var(--g3)' }[s] || 'var(--g3)'; }
+    function srcIcon(s) { return { voice: '🎤', photo: '📸', manual: '✏️' }[s] || '✏️'; }
+
+    function invCardHTML(inv, onclick) {
+      return `<div onclick="${onclick}" style="background:var(--g2);border-radius:11px;padding:12px;margin-bottom:8px;border:1px solid var(--g3);display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+    <div style="flex:1;margin-right:10px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+        <span style="color:var(--mutl);font-size:10px;font-weight:600">${inv.invoiceNumber || inv.invoice_number || 'INV'}</span>
+        <span style="background:${scBg(inv.status)};color:${scColor(inv.status)};font-size:8px;font-weight:800;letter-spacing:0.8px;padding:2px 6px;border-radius:999px">${(inv.status || 'draft').toUpperCase()}</span>
       </div>
-    `).join('');
-    
-    document.getElementById('vi-card').innerHTML = `
-      <div style="background:var(--g1); border-radius:8px; padding:18px; border:1px solid var(--g3); text-align:left;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; border-bottom:1px dashed var(--g3); padding-bottom:14px;">
-          <div><div style="color:var(--mutl); font-size:9px; font-weight:800; letter-spacing:1.5px">BILLED TO</div><div style="color:var(--wht); font-size:16px; font-weight:800; font-family:'Bebas Neue', sans-serif; margin-top:2px; letter-spacing:1px;">${voiceData.clientName || 'Valued Client'}</div></div>
-          <div style="text-align:right;"><div style="color:var(--mutl); font-size:9px; font-weight:800; letter-spacing:1.5px">INVOICE NO.</div><div style="color:var(--or); font-size:13px; font-weight:800; margin-top:2px;">#INV-${invNum}</div><div style="color:var(--mutl); font-size:10px; margin-top:4px">${today}</div></div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:var(--mutl); font-size:9px; font-weight:800; letter-spacing:1px; border-bottom:1px solid var(--g2); padding-bottom:6px;"><span style="flex:1">DESCRIPTION</span><span style="width:30px; text-align:right">QTY</span><span style="width:80px; text-align:right">AMOUNT</span></div>
-          ${itemsHtml}
-        </div>
-        <div style="border-top:1px dashed var(--g3); padding-top:14px; margin-top:14px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:12px;"><span style="color:var(--mutl); font-weight:600;">Subtotal</span><span style="color:var(--wht); font-weight:600;">${curr}${formatMoney(subtotalNum)}</span></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:16px; font-size:12px;"><span style="color:var(--mutl); font-weight:600;">VAT (7.5%)</span><span style="color:var(--wht); font-weight:600;">${curr}${formatMoney(taxNum)}</span></div>
-          <div style="display:flex; justify-content:space-between; align-items:center; background:var(--black); padding:14px; border-radius:8px; border:1px solid var(--orm); box-shadow: 0 4px 15px rgba(255,92,26,0.1);"><span style="font-weight:800; color:var(--or); font-size:11px; letter-spacing:1.5px">TOTAL DUE</span><span style="color:var(--or); font-size:24px; font-weight:800; font-family:'Bebas Neue',sans-serif">${curr}${formatMoney(totalNum)}</span></div>
-        </div>
-      </div>
-    `;
-  } catch (e) {
-    document.getElementById('vi-proc').style.display = 'none'; document.getElementById('vi-text').style.display = 'block'; showToast('❌ Backend Error');
-  }
-}
+      <div style="font-weight:700;font-size:14px;color:var(--wht);margin-bottom:2px">${inv.clientName || inv.client_name || 'Client'}</div>
+      <div style="color:var(--mutl);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">${inv.jobDescription || inv.job_description || ''}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="color:var(--or);font-size:16px;font-weight:800;font-family:'Syne',sans-serif">${fmt(inv.total || 0)}</div>
+      <div style="font-size:13px;margin-top:3px">${srcIcon(inv.source || 'manual')}</div>
+    </div>
+  </div>`;
+    }
 
-function saveVoiceInv() { showToast('✅ Invoice Saved!'); setTimeout(() => { resetVoice(); showScreen('s-dashboard'); }, 1500); }
-function resetVoice(){ voiceData=null; ['vi-idle','vi-text','vi-proc','vi-prev'].forEach((id,i)=>{const e=document.getElementById(id);if(e)e.style.display=i===0?'block':'none'}); const t=document.getElementById('voice-txt');if(t)t.value=''; }
-</script>
-</body>
-</html>
+    // ── DASHBOARD ─────────────────────────────────
+    function renderDash() {
+      const total = invoices.reduce((s, i) => s + (i.total || 0), 0);
+      const paid = invoices.filter(i => i.status === 'paid').reduce((s, i) => s + (i.total || 0), 0);
+      const pcount = invoices.filter(i => i.status === 'paid').length;
+      const pend = invoices.filter(i => ['sent', 'viewed'].includes(i.status)).length;
+      const over = invoices.filter(i => i.status === 'overdue').length;
+
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      set('stat-total', fmt(total));
+      set('stat-paid', fmt(paid));
+      set('stat-count', invoices.length);
+      set('stat-pcount', pcount);
+      set('stat-pend', pend);
+      set('stat-over', over);
+
+      const el = document.getElementById('dash-invoices');
+      if (el) {
+        el.innerHTML = invoices.length === 0
+          ? '<div style="text-align:center;padding:32px 0;color:var(--mutl);font-size:13px">No invoices yet — create your first one above ⚡</div>'
+          : invoices.slice(0, 3).map(inv => invCardHTML(inv, `showDetail('${inv.id}')`)).join('');
+      }
+
+      ['bnav-dash', 'bnav-inv', 'bnav-msg', 'bnav-ana', 'bnav-profile'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = navHTML(['dashboard', 'invoices', 'messages', 'analytics', 'profile'][i]);
+      });
+    }
+
+    // ── INVOICES LIST ─────────────────────────────
+    function renderInvoices(filter) {
+      const list = filter === 'all' ? invoices : invoices.filter(i => i.status === filter);
+      const el = document.getElementById('inv-list');
+      if (!el) return;
+      el.innerHTML = list.length === 0
+        ? `<div style="text-align:center;padding:60px 0;color:var(--mutl)">No ${filter} invoices</div>`
+        : list.map(inv => invCardHTML(inv, `showDetail('${inv.id}')`)).join('');
+      const bnav = document.getElementById('bnav-inv');
+      if (bnav) bnav.innerHTML = navHTML('invoices');
+    }
+
+    function filterInv(f, btn) {
+      document.querySelectorAll('#s-invoices .bnav ~ div button, #s-invoices > div:nth-child(2) button').forEach(b => {
+        b.style.background = 'var(--g2)'; b.style.color = 'var(--mutl)';
+      });
+      if (btn) { btn.style.background = 'var(--or)'; btn.style.color = '#fff'; }
+      renderInvoices(f);
+    }
+
+    function showDetail(id) {
+      // For now just show toast — full detail screen can be added
+      const inv = invoices.find(i => i.id === id);
+      if (inv) showToast(`${inv.clientName || inv.client_name} — ${fmt(inv.total || 0)} — ${(inv.status || '').toUpperCase()}`);
+    }
+
+    // ── VOICE INVOICE ─────────────────────────────
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    async function startRecord() {
+      const btn = document.getElementById('rec-btn');
+      const icon = document.getElementById('rec-icon');
+      const lbl = document.getElementById('rec-lbl');
+      const ring = document.getElementById('pulse-ring');
+      
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+          
+          mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+          };
+          
+          mediaRecorder.onstop = async () => {
+            document.getElementById('voice-idle').style.display = 'none';
+            document.getElementById('voice-processing').style.display = 'block';
+            
+            try {
+              const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+              const formData = new FormData();
+              formData.append('audio', audioBlob, 'voice-recording.webm');
+              
+              const res = await fetch(`${window.ROUTES.voiceToInvoice()}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${jwtToken}` },
+                body: formData
+              });
+              
+              const data = await res.json();
+              if (data.error) throw new Error(data.error);
+              
+              voiceData = data.invoice || data;
+              document.getElementById('voice-txt').value = data.transcript || '';
+              
+              document.getElementById('voice-processing').style.display = 'none';
+              document.getElementById('voice-preview').style.display = 'block';
+              document.getElementById('voice-confidence').textContent = `🤖 AI Confidence: ${Math.round((voiceData.confidence || 0.9) * 100)}%`;
+              
+              const card = document.getElementById('voice-result-card');
+              const items = (voiceData.lineItems || []).map(it => `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--mutl);font-size:12px">${it.description}</span><span style="color:var(--wht);font-size:12px;font-weight:600">${fmt(it.amount || it.amt || 0)}</span></div>`).join('');
+              card.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--mutl);font-size:10px;font-weight:700;letter-spacing:1px">CLIENT</span><span style="color:var(--wht);font-weight:700;font-size:13px">${voiceData.clientName || 'Client'}</span></div><div class="divider"></div>${items}<div class="divider"></div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;color:var(--wht);font-size:13px">TOTAL DUE</span><span style="color:var(--or);font-size:24px;font-weight:800;font-family:'Syne',sans-serif">${fmt(voiceData.total || 0)}</span></div>`;
+            } catch (err) {
+              console.error(err);
+              showToast('❌ Recording build failed — let\'s try manual typing!');
+              document.getElementById('voice-processing').style.display = 'none';
+              document.getElementById('voice-transcript').style.display = 'block';
+            }
+          };
+          
+          mediaRecorder.start();
+          isRecording = true;
+          icon.textContent = '⏹'; lbl.textContent = 'TAP TO STOP';
+          btn.style.background = 'linear-gradient(135deg,#c0392b,var(--red))';
+          ring.style.transform = 'scale(1.4)';
+          btn.onclick = stopRecord;
+        } catch (e) {
+          console.error(e);
+          showToast('🎙️ Microphone access denied or not supported');
+        }
+      }
+    }
+
+    function stopRecord() {
+      const btn = document.getElementById('rec-btn');
+      const icon = document.getElementById('rec-icon');
+      const lbl = document.getElementById('rec-lbl');
+      const ring = document.getElementById('pulse-ring');
+      
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+        
+        icon.textContent = '🎤'; lbl.textContent = 'TAP TO START';
+        btn.style.background = 'linear-gradient(135deg,#ff7a3d,var(--or))';
+        ring.style.transform = 'scale(1)';
+        btn.onclick = startRecord;
+      }
+    }
+
+    async function processVoice() {
+      const txt = document.getElementById('voice-txt').value;
+      if (!txt.trim()) return showToast('Please describe the job first');
+      document.getElementById('voice-transcript').style.display = 'none';
+      document.getElementById('voice-processing').style.display = 'block';
+      try {
+        const res = await fetch(`${window.ROUTES.voiceToInvoice()}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
+          body: JSON.stringify({ transcript: txt })
+        });
+        const data = await res.json();
+        voiceData = data.invoice || data;
+        document.getElementById('voice-processing').style.display = 'none';
+        document.getElementById('voice-preview').style.display = 'block';
+        document.getElementById('voice-confidence').textContent = `🤖 AI Confidence: ${Math.round((voiceData.confidence || 0.9) * 100)}%`;
+        const card = document.getElementById('voice-result-card');
+        const items = (voiceData.lineItems || []).map(it => `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--mutl);font-size:12px">${it.description}</span><span style="color:var(--wht);font-size:12px;font-weight:600">${fmt(it.amount || it.amt || 0)}</span></div>`).join('');
+        card.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--mutl);font-size:10px;font-weight:700;letter-spacing:1px">CLIENT</span><span style="color:var(--wht);font-weight:700;font-size:13px">${voiceData.clientName || 'Client'}</span></div><div class="divider"></div>${items}<div class="divider"></div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;color:var(--wht);font-size:13px">TOTAL DUE</span><span style="color:var(--or);font-size:24px;font-weight:800;font-family:'Syne',sans-serif">${fmt(voiceData.total || 0)}</span></div>`;
+      } catch (e) {
+        document.getElementById('voice-processing').style.display = 'none';
+        document.getElementById('voice-transcript').style.display = 'block';
+        showToast('AI error — check your connection');
+      }
+    }
+
+    async function saveVoiceInv() {
+      if (!voiceData) return;
+      const inv = { ...voiceData, id: Date.now().toString(), invoice_number: `INV-${Date.now().toString().slice(-6)}`, invoiceNumber: `INV-${Date.now().toString().slice(-6)}`, status: 'draft', source: 'voice', due_date: new Date(Date.now() + 30 * 864e5).toISOString().split('T')[0], created_at: new Date().toISOString() };
+      invoices.unshift(inv);
+      // Try to save to backend
+      try {
+        await fetch(`${window.ROUTES.invoices()}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` }, body: JSON.stringify(inv) });
+      } catch (e) { }
+      resetVoice(); go('s-dashboard'); showToast('✅ Invoice saved!');
+    }
+
+    function resetVoice() {
+      voiceData = null;
+      document.getElementById('voice-idle').style.display = 'block';
+      document.getElementById('voice-transcript').style.display = 'none';
+      document.getElementById('voice-processing').style.display = 'none';
+      document.getElementById('voice-preview').style.display = 'none';
+      document.getElementById('voice-txt').value = '';
+      
+      const btn = document.getElementById('rec-btn');
+      const icon = document.getElementById('rec-icon');
+      const lbl = document.getElementById('rec-lbl');
+      const ring = document.getElementById('pulse-ring');
+      if (btn) {
+        icon.textContent = '🎤'; lbl.textContent = 'TAP TO START';
+        btn.style.background = 'linear-gradient(135deg,#ff7a3d,var(--or))';
+        ring.style.transform = 'scale(1)';
+        btn.onclick = startRecord;
+      }
+    }
+
+    // ── PHOTO INVOICE ─────────────────────────────
+    function handlePhotoSelect(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        processPhoto(e.target.result, "Job site analysis from photo");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function processPhoto(base64Image, jobDesc) {
+      document.getElementById('photo-idle').style.display = 'none';
+      document.getElementById('photo-processing').style.display = 'block';
+      try {
+        const res = await fetch(`${window.ROUTES.photoToInvoice()}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
+          body: JSON.stringify({ imageBase64: base64Image, description: jobDesc })
+        });
+        const data = await res.json();
+        photoData = data.invoice || data;
+      } catch (e) {
+        console.error("Photo Error:", e);
+        showToast('❌ Analysis failed — try a clearer photo');
+        return resetPhoto();
+      }
+      document.getElementById('photo-processing').style.display = 'none';
+      document.getElementById('photo-result').style.display = 'block';
+      document.getElementById('photo-confidence').textContent = `🤖 Confidence: ${Math.round((photoData.confidence || 0.87) * 100)}%`;
+      document.getElementById('photo-ai-desc').innerHTML = `<div style="color:var(--mutl);font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:6px">AI SAW</div><div style="color:var(--mutl);font-size:12px;line-height:1.6">${photoData.photoAnalysis || jobDesc}</div>`;
+      const items = (photoData.lineItems || []).map(it => `<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--mutl);font-size:12px">${it.description}</span><span style="color:var(--wht);font-size:12px;font-weight:600">${fmt(it.amount || 0)}</span></div>`).join('');
+      document.getElementById('photo-result-card').innerHTML = `<div style="font-weight:700;color:var(--wht);font-size:13px;margin-bottom:10px">${photoData.jobDescription || jobDesc}</div>${items}<div class="divider"></div><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;color:var(--wht);font-size:13px">TOTAL DUE</span><span style="color:var(--or);font-size:24px;font-weight:800;font-family:'Syne',sans-serif">${fmt(photoData.total || 0)}</span></div>`;
+    }
+
+    function savePhotoInv() {
+      if (!photoData) return;
+      const inv = { ...photoData, id: Date.now().toString(), invoice_number: `INV-${Date.now().toString().slice(-6)}`, invoiceNumber: `INV-${Date.now().toString().slice(-6)}`, clientName: 'Photo Client', client_name: 'Photo Client', status: 'draft', source: 'photo', due_date: new Date(Date.now() + 30 * 864e5).toISOString().split('T')[0] };
+      invoices.unshift(inv);
+      resetPhoto(); go('s-dashboard'); showToast('✅ Invoice saved!');
+    }
+
+    function resetPhoto() {
+      photoData = null;
+      document.getElementById('photo-idle').style.display = 'block';
+      document.getElementById('photo-processing').style.display = 'none';
+      document.getElementById('photo-result').style.display = 'none';
+    }
+
+    // ── MANUAL INVOICE ────────────────────────────
+    function initCreate() {
+      lineCount = 0;
+      const ci = document.getElementById('c-client');
+      const cj = document.getElementById('c-job');
+      const li = document.getElementById('line-items');
+      if (ci) ci.value = '';
+      if (cj) cj.value = '';
+      if (li) li.innerHTML = '';
+      addLine(); updateTotals();
+    }
+
+    function addLine() {
+      lineCount++;
+      const div = document.createElement('div');
+      div.className = 'card'; div.style.marginBottom = '8px'; div.id = `line-${lineCount}`;
+      div.innerHTML = `<input class="inp" placeholder="Description" id="ld-${lineCount}" oninput="updateTotals()"/>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label class="label">QTY</label><input type="number" class="inp" id="lq-${lineCount}" value="1" min="1" oninput="updateTotals()"/></div>
+      <div style="flex:2"><label class="label">UNIT PRICE ₦</label><input type="number" class="inp" id="lp-${lineCount}" placeholder="0" oninput="updateTotals()"/></div>
+      ${lineCount > 1 ? `<button onclick="removeLine(${lineCount})" style="color:var(--red);background:none;border:none;font-size:22px;cursor:pointer;padding-top:20px">×</button>` : ''}
+    </div>
+    <div style="text-align:right;margin-top:4px;color:var(--or);font-size:13px;font-weight:700" id="la-${lineCount}">₦0</div>`;
+      document.getElementById('line-items').appendChild(div);
+    }
+
+    function removeLine(n) { const el = document.getElementById(`line-${n}`); if (el) el.remove(); updateTotals(); }
+
+    function updateTotals() {
+      let sub = 0;
+      for (let i = 1; i <= lineCount; i++) {
+        const q = document.getElementById(`lq-${i}`), p = document.getElementById(`lp-${i}`), a = document.getElementById(`la-${i}`);
+        if (!q) continue;
+        const amt = (parseFloat(p?.value) || 0) * (parseFloat(q?.value) || 1);
+        if (a) a.textContent = fmt(amt);
+        sub += amt;
+      }
+      const tax = sub * 0.075, total = sub + tax;
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      set('c-sub', fmt(sub)); set('c-tax', fmt(Math.round(tax))); set('c-total', fmt(Math.round(total)));
+    }
+
+    function saveManual() {
+      const client = document.getElementById('c-client')?.value;
+      const job = document.getElementById('c-job')?.value;
+      if (!client || !job) return showToast('Please fill in client name and job');
+      let items = [], sub = 0;
+      for (let i = 1; i <= lineCount; i++) {
+        const desc = document.getElementById(`ld-${i}`), q = document.getElementById(`lq-${i}`), p = document.getElementById(`lp-${i}`);
+        if (!desc) continue;
+        const amt = (parseFloat(p?.value) || 0) * (parseFloat(q?.value) || 1);
+        if (desc.value) items.push({ description: desc.value, quantity: parseFloat(q?.value) || 1, unitPrice: parseFloat(p?.value) || 0, amount: Math.round(amt) });
+        sub += amt;
+      }
+      const tax = Math.round(sub * 0.075), total = Math.round(sub + tax);
+      const inv = { id: Date.now().toString(), invoice_number: `INV-${Date.now().toString().slice(-6)}`, invoiceNumber: `INV-${Date.now().toString().slice(-6)}`, clientName: client, client_name: client, jobDescription: job, job_description: job, lineItems: items, subtotal: Math.round(sub), taxRate: 0.075, taxAmount: tax, total, status: 'draft', source: 'manual', due_date: new Date(Date.now() + 30 * 864e5).toISOString().split('T')[0] };
+      invoices.unshift(inv);
+      go('s-dashboard'); showToast('✅ Invoice saved!');
+    }
+
+    // ── CLIENTS ───────────────────────────────────
+    function renderClients() {
+      const clients = {};
+      invoices.forEach(inv => {
+        const name = inv.clientName || inv.client_name || 'Unknown';
+        if (!clients[name]) clients[name] = { name, jobs: 0, total: 0 };
+        clients[name].jobs++;
+        if (inv.status === 'paid') clients[name].total += (inv.total || 0);
+      });
+      const el = document.getElementById('clients-list');
+      const list = Object.values(clients);
+      if (!el) return;
+      el.innerHTML = list.length === 0
+        ? '<div style="text-align:center;padding:60px 0;color:var(--mutl)">No clients yet</div>'
+        : list.map(c => `<div class="card" style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:40px;height:40px;border-radius:20px;background:var(--ord);border:1px solid var(--orm);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--or)">${c.name.charAt(0)}</div>
+          <div><div style="font-weight:700;font-size:14px;color:var(--wht)">${c.name}</div><div style="color:var(--mutl);font-size:11px;margin-top:1px">${c.jobs} job${c.jobs !== 1 ? 's' : ''}</div></div>
+        </div>
+        <div style="text-align:right"><div style="color:var(--grn);font-size:13px;font-weight:800">${fmt(c.total)}</div><div style="color:var(--mutl);font-size:10px">paid</div></div>
+      </div>`).join('');
+      const bnav = document.getElementById('bnav-clients');
+      if (bnav) bnav.innerHTML = navHTML('clients');
+    }
+
+    // ── MESSAGING LOGIC ──────────────────────────
+    async function renderMessages() {
+      const el = document.getElementById('msg-threads');
+      if (!el) return;
+      
+      // Add "Configure" button at the top of messages
+      const headerHTML = `
+        <div style="padding:16px; background:var(--g1); border-bottom:1px solid var(--g2); display:flex; justify-content:space-between; align-items:center">
+            <div>
+                <div style="font-family:'Syne',sans-serif; font-size:18px; font-weight:800">Sales Inbox</div>
+                <div style="font-size:11px; color:var(--mutl)">AI Auto-Pilot is active</div>
+            </div>
+            <button onclick="go('s-ap-config')" style="background:var(--g2); border:1px solid var(--g3); color:var(--wht); padding:8px 12px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer">⚙️ Configure</button>
+        </div>
+      `;
+
+      try {
+        const r = await Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true, conversations: [] }) });
+        const threads = await r.json();
+        if (!threads || threads.length === 0) {
+          el.innerHTML = headerHTML + '<div style="text-align:center;padding:60px 24px"><div style="font-size:40px;margin-bottom:12px">📥</div><div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:800;color:var(--wht)">No Conversations</div><p style="color:var(--mutl);font-size:12px;margin-top:4px">When customers DM you on Instagram or WhatsApp, they will appear here.</p></div>';
+        } else {
+          el.innerHTML = headerHTML + threads.map(t => `<div onclick="openConvo('${t.sender_id}', '${t.platform}')" style="background:var(--g1);padding:16px;border-bottom:1px solid var(--g2);display:flex;justify-content:space-between;align-items:center;cursor:pointer">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:44px;height:44px;border-radius:22px;background:var(--g3);display:flex;align-items:center;justify-content:center;font-size:20px;position:relative">
+                ${t.platform === 'instagram' ? '📸' : '💬'}
+                <div style="position:absolute; bottom:0; right:0; width:12px; height:12px; border-radius:6px; background:var(--grn); border:2px solid var(--g1)"></div>
+              </div>
+              <div>
+                <div style="font-weight:700;color:var(--wht);font-size:14px">${t.sender_id.slice(-8)}... <span class="badge-ai">AI Handled</span></div>
+                <div style="color:var(--mutl);font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.text}</div>
+              </div>
+            </div>
+            <div style="color:var(--mut);font-size:10px">${new Date(t.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+          </div>`).join('');
+        }
+      } catch (e) { console.error("Inbox Error:", e); }
+      const b = document.getElementById('bnav-msg'); if (b) b.innerHTML = navHTML('messages');
+    }
+
+    // ── NEW: ANALYTICS LOGIC ──────────────────────
+    function renderAnalytics() {
+      let total = 0;
+      let paid = 0;
+      const clients = {};
+      const overdue = [];
+
+      invoices.forEach(inv => {
+        const invTotal = inv.total || 0;
+        total += invTotal;
+
+        if (inv.status === 'paid') {
+          paid += invTotal;
+        }
+
+        if (inv.status === 'overdue') {
+          overdue.push(inv);
+        }
+
+        const name = inv.clientName || inv.client_name || 'Client';
+        if (!clients[name]) clients[name] = { name, total: 0, count: 0 };
+        clients[name].total += invTotal;
+        clients[name].count++;
+      });
+
+      document.getElementById('ana-total').textContent = fmt(total);
+      document.getElementById('ana-paid').textContent = fmt(paid);
+
+      // Render Top Clients
+      const topList = Object.values(clients).sort((a,b) => b.total - a.total).slice(0, 3);
+      document.getElementById('ana-clients').innerHTML = topList.map(c => `
+        <div class="card glass" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center">
+            <div style="display:flex; align-items:center; gap:10px">
+                <div style="width:32px; height:32px; border-radius:16px; background:var(--g3); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px">${c.name[0]}</div>
+                <div>
+                    <div style="font-size:13px; font-weight:700">${c.name}</div>
+                    <div style="font-size:10px; color:var(--mutl)">${c.count} Invoices</div>
+                </div>
+            </div>
+            <div class="stat-val" style="font-size:15px">${fmt(c.total)}</div>
+        </div>
+      `).join('');
+
+      // Overdue Recovery
+      document.getElementById('ana-overdue').innerHTML = overdue.length === 0 
+        ? '<div class="card glass" style="text-align:center; font-size:12px; color:var(--mutl)">No overdue payments to recover. Keep it up!</div>'
+        : overdue.map(inv => `
+            <div class="card glass" style="margin-bottom:8px; border-left:4px solid var(--red)">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                    <div>
+                        <div style="font-size:13px; font-weight:700">${inv.clientName || inv.client_name}</div>
+                        <div style="font-size:11px; color:var(--red); font-weight:700">${fmt(inv.total)} OVERDUE</div>
+                    </div>
+                    <button onclick="aiRemind('${inv.id}')" class="badge-ai" style="cursor:pointer; padding:6px 10px">🤖 AI REMIND</button>
+                </div>
+            </div>
+        `).join('');
+
+      const b = document.getElementById('bnav-ana'); if (b) b.innerHTML = navHTML('analytics');
+    }
+
+    async function aiRemind(invoiceId) {
+        showLoading("AI is drafting a professional reminder...");
+        try {
+            const res = await fetch(`${window.ROUTES.draftReminder()}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
+                body: JSON.stringify({ invoiceId })
+            });
+            const { draft } = await res.json();
+            
+            hideLoading();
+            const modal = document.getElementById('email-modal');
+            document.getElementById('draft-subject').textContent = "Subject: " + draft.subject;
+            document.getElementById('draft-body').innerHTML = draft.body;
+            modal.style.display = 'flex';
+            
+            document.getElementById('btn-send-draft').onclick = () => sendFinalReminder(invoiceId, draft);
+        } catch (e) {
+            hideLoading();
+            showToast("❌ Failed to draft reminder");
+        }
+    }
+
+    async function sendFinalReminder(invoiceId, draft) {
+        document.getElementById('email-modal').style.display = 'none';
+        showLoading("Sending email...");
+        try {
+            // Fetch invoice to get client email (mocking or getting from profile)
+            const inv = invoices.find(i => i.id === invoiceId);
+            const { data: profile } = await sb.from('user_profiles').select('email').eq('id', user.id).single();
+            
+            const res = await fetch(`${window.ROUTES.emailRemind()}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
+                body: JSON.stringify({ 
+                    toEmail: inv.clientEmail || profile.email, 
+                    clientName: inv.clientName || inv.client_name,
+                    amountDue: fmt(inv.total),
+                    invoiceNumber: inv.invoice_number,
+                    dueDate: inv.due_date
+                })
+            });
+            
+            hideLoading();
+            if (res.ok) showToast("✅ Reminder sent successfully!");
+            else showToast("❌ Failed to send email");
+        } catch (e) {
+            hideLoading();
+            showToast("❌ SMTP Error");
+        }
+    }
+
+    // ── NEW: AUTO-PILOT CONFIG ───────────────────
+    async function initAPConfig() {
+        if (!user) return go('s-login');
+        
+        // Premium Restriction Check
+        const { data: profile } = await sb.from('user_profiles').select('*').eq('id', user.id).single();
+        if (profile?.plan !== 'premium' && user.email !== 'srdgintel@gmail.com') { // Whitelist for testing
+            showToast("💎 Auto-Pilot is a Premium Feature. Please upgrade!");
+            go('s-ana');
+            return;
+        }
+
+        if (profile) {
+            document.getElementById('ap-service').value = profile.business_service || '';
+            document.getElementById('ap-pricing').value = profile.pricing_list || '';
+            setTone(profile.ai_tone || 'professional');
+        }
+    }
+
+    let currentTone = 'prof';
+    function setTone(tone) {
+        currentTone = tone;
+        ['prof', 'friend', 'fast'].forEach(t => {
+            const el = document.getElementById('tone-' + t);
+            if(el) el.style.opacity = (t === tone) ? "1" : "0.4";
+            if(el) el.style.borderColor = (t === tone) ? "var(--or)" : "var(--g3)";
+        });
+    }
+
+    async function deployTraining() {
+        const service = document.getElementById('ap-service').value.trim();
+        const pricing = document.getElementById('ap-pricing').value.trim();
+        
+        showLoading("Training AI on your business data...");
+        try {
+            const { error } = await sb.from('user_profiles').update({
+                business_service: service,
+                pricing_list: pricing,
+                ai_tone: currentTone
+            }).eq('id', user.id);
+            
+            if (error) throw error;
+            
+            hideLoading();
+            showToast("🚀 AI trained successfully!");
+            go('s-messages');
+        } catch (e) {
+            hideLoading();
+            showToast("❌ Failed to train AI: " + e.message);
+        }
+    }
+
+    let currentChat = null;
+    async function openConvo(senderId, platform) {
+      currentChat = { senderId, platform };
+      document.getElementById('chat-title').textContent = `${platform === 'instagram' ? 'Instagram' : 'WhatsApp'} · ${senderId.slice(-6)}`;
+      go('s-chat');
+      document.getElementById('chat-scroller').innerHTML = '<div style="text-align:center;color:var(--mutl);padding:20px;font-size:12px">Loading history...</div>';
+      try {
+        const r = await Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true, messages: [] }) });
+        const history = await r.json();
+        document.getElementById('chat-scroller').innerHTML = history.map(m => {
+          const isMe = m.direction === 'outbound';
+          return `<div style="max-width:85%; padding:10px 14px; border-radius:18px; font-size:13px; line-height:1.5; align-self:${isMe ? 'flex-end' : 'flex-start'}; background:${isMe ? 'var(--or)' : 'var(--g3)'}; color:${isMe ? '#fff' : 'var(--wht)'}; ${isMe ? 'border-bottom-right-radius:4px' : 'border-bottom-left-radius:4px'}">
+            ${m.text}
+          </div>`;
+        }).join('');
+        const sc = document.getElementById('chat-scroller');
+        sc.scrollTop = sc.scrollHeight;
+      } catch (e) { console.error("Chat Error:", e); }
+    }
+
+    async function sendReply() {
+      const inp = document.getElementById('chat-input');
+      const txt = inp.value.trim();
+      if (!txt || !currentChat) return;
+      inp.value = '';
+      showToast('Sending reply...');
+      try {
+        const res = await fetch(`${window.ROUTES.processQueue()}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwtToken },
+          body: JSON.stringify({ recipientId: currentChat.senderId, text: txt, platform: currentChat.platform })
+        });
+        if (res.ok) {
+          showToast('✅ Reply sent!');
+          openConvo(currentChat.senderId, currentChat.platform);
+        }
+      } catch (e) { showToast('❌ Failed to send reply'); }
+    }
+
+    async function toggleAP(checked) {
+      showToast(`Auto-Pilot ${checked ? 'Enabled' : 'Disabled'}`);
+    }
+
+    // ── TOAST & LOADING ───────────────────────────
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      if (!el) return;
+      el.textContent = msg; el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    function showLoading(msg) {
+      const el = document.getElementById('loading');
+      const msg_el = document.getElementById('loading-msg');
+      if (el) el.style.display = 'flex';
+      if (msg_el) msg_el.textContent = msg || 'Loading...';
+    }
+
+    function hideLoading() {
+      const el = document.getElementById('loading');
+      if (el) el.style.display = 'none';
+    }
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('🚀 PWA Service Worker Active'))
+          .catch(err => console.log('❌ SW Registration failed:', err));
+      });
+    }
+  </script>
+</body></html>

@@ -1,0 +1,5 @@
+# Cloudflare Pages SPA routing
+# All routes serve the main app so client-side navigation works
+/*
+  /index.html
+  200

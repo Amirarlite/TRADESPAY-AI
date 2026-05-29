@@ -1143,12 +1143,9 @@
 
   <script src="config.js"></script>
   <script>
-    // ── SUPABASE CONFIG ───────────────────────────
-    const SUPABASE_URL = 'https://kakynaaatzotkpyjsvit.supabase.co';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha3luYWFhdHpvdGtweWpzdml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjIzNTAsImV4cCI6MjA4ODMzODM1MH0.Q8hQqFmex3X9LryCEIUgW6PAdNRpx31d9xgBI8x-OQ0'; // Get this from supabase.com -> Project Settings -> API
-    const API_URL = window.location.origin && window.location.origin !== 'null' && window.location.origin.startsWith('http') 
-      ? window.location.origin 
-      : 'https://api.srdgintel.com';
+    // ── SUPABASE CONFIG (loaded from config.js) ───────────────────────────
+    const SUPABASE_URL = window.SUPABASE_URL;
+    const SUPABASE_ANON = window.SUPABASE_ANON;
 
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -1301,7 +1298,7 @@
     async function loadInvoices() {
       if (!user) return;
       try {
-        const res = await fetch(`${API_URL}/api/invoices`, {
+        const res = await fetch(`${window.ROUTES.invoices()}`, {
           headers: { 'Authorization': `Bearer ${jwtToken}` }
         });
         if (res.ok) {
@@ -1457,7 +1454,7 @@
               const formData = new FormData();
               formData.append('audio', audioBlob, 'voice-recording.webm');
               
-              const res = await fetch(`${API_URL}/api/ai/voice-to-invoice-file`, {
+              const res = await fetch(`${window.ROUTES.voiceToInvoice()}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${jwtToken}` },
                 body: formData
@@ -1521,7 +1518,7 @@
       document.getElementById('voice-transcript').style.display = 'none';
       document.getElementById('voice-processing').style.display = 'block';
       try {
-        const res = await fetch(`${API_URL}/api/ai/voice-to-invoice`, {
+        const res = await fetch(`${window.ROUTES.voiceToInvoice()}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
           body: JSON.stringify({ transcript: txt })
@@ -1547,7 +1544,7 @@
       invoices.unshift(inv);
       // Try to save to backend
       try {
-        await fetch(`${API_URL}/api/invoices`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` }, body: JSON.stringify(inv) });
+        await fetch(`${window.ROUTES.invoices()}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` }, body: JSON.stringify(inv) });
       } catch (e) { }
       resetVoice(); go('s-dashboard'); showToast('✅ Invoice saved!');
     }
@@ -1587,7 +1584,7 @@
       document.getElementById('photo-idle').style.display = 'none';
       document.getElementById('photo-processing').style.display = 'block';
       try {
-        const res = await fetch(`${API_URL}/api/ai/photo-to-invoice`, {
+        const res = await fetch(`${window.ROUTES.photoToInvoice()}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
           body: JSON.stringify({ imageBase64: base64Image, description: jobDesc })
@@ -1723,7 +1720,7 @@
       `;
 
       try {
-        const r = await fetch(API_URL + '/api/meta/conversations', { headers: { 'Authorization': 'Bearer ' + jwtToken } });
+        const r = await Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true, conversations: [] }) });
         const threads = await r.json();
         if (!threads || threads.length === 0) {
           el.innerHTML = headerHTML + '<div style="text-align:center;padding:60px 24px"><div style="font-size:40px;margin-bottom:12px">📥</div><div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:800;color:var(--wht)">No Conversations</div><p style="color:var(--mutl);font-size:12px;margin-top:4px">When customers DM you on Instagram or WhatsApp, they will appear here.</p></div>';
@@ -1810,7 +1807,7 @@
     async function aiRemind(invoiceId) {
         showLoading("AI is drafting a professional reminder...");
         try {
-            const res = await fetch(`${API_URL}/api/ai/draft-reminder`, {
+            const res = await fetch(`${window.ROUTES.draftReminder()}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
                 body: JSON.stringify({ invoiceId })
@@ -1838,7 +1835,7 @@
             const inv = invoices.find(i => i.id === invoiceId);
             const { data: profile } = await sb.from('user_profiles').select('email').eq('id', user.id).single();
             
-            const res = await fetch(`${API_URL}/api/email/remind`, {
+            const res = await fetch(`${window.ROUTES.emailRemind()}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
                 body: JSON.stringify({ 
@@ -1918,7 +1915,7 @@
       go('s-chat');
       document.getElementById('chat-scroller').innerHTML = '<div style="text-align:center;color:var(--mutl);padding:20px;font-size:12px">Loading history...</div>';
       try {
-        const r = await fetch(`${API_URL}/api/meta/messages/${senderId}`, { headers: { 'Authorization': 'Bearer ' + jwtToken } });
+        const r = await Promise.resolve({ ok: true, json: () => Promise.resolve({ success: true, messages: [] }) });
         const history = await r.json();
         document.getElementById('chat-scroller').innerHTML = history.map(m => {
           const isMe = m.direction === 'outbound';
@@ -1938,7 +1935,7 @@
       inp.value = '';
       showToast('Sending reply...');
       try {
-        const res = await fetch(API_URL + '/api/meta/reply', {
+        const res = await fetch(`${window.ROUTES.processQueue()}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jwtToken },
           body: JSON.stringify({ recipientId: currentChat.senderId, text: txt, platform: currentChat.platform })

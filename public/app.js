@@ -1,3 +1,7 @@
+// Loads config.js from parent when used with app.html
+// Standalone: set SUPABASE_FN_URL below
+const SUPABASE_FN_URL = window.EDGE_FN_BASE || 'https://kakynaaatzotkpyjsvit.supabase.co/functions/v1';
+
 const micBtn = document.getElementById('start-voice-btn');
 const statusLog = document.getElementById('status-log');
 const resultContainer = document.getElementById('result-container');
@@ -32,7 +36,7 @@ if (!SpeechRecognition) {
                         const formData = new FormData();
                         formData.append('audio', audioBlob, 'voice-recording.webm');
                         
-                        const response = await fetch('/api/ai/voice-to-invoice-file', {
+                        const response = await fetch(`${SUPABASE_FN_URL}/voice-to-invoice`, {
                             method: 'POST',
                             body: formData
                         });
@@ -88,7 +92,7 @@ if (!SpeechRecognition) {
         statusLog.innerHTML = `<strong>Heard:</strong> "${transcript}"<br><br><span style='color: #60a5fa;'>🧠 Routing to TradesPay AI Engine...</span>`;
 
         try {
-            const response = await fetch('/api/ai/voice-to-invoice', {
+            const response = await fetch(`${SUPABASE_FN_URL}/voice-to-invoice`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ transcript })
