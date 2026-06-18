@@ -53,3 +53,9 @@ verify_jwt = false
 import_map = "./functions/switch-model/deno.json"
 entrypoint = "./functions/switch-model/index.ts"
 
+[functions.instagram-connect]
+enabled = true
+verify_jwt = false
+import_map = "./functions/instagram-connect/deno.json"
+entrypoint = "./functions/instagram-connect/index.ts"
+

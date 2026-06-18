@@ -1175,6 +1175,14 @@
       }
       if (session) {
         await handleSession(session);
+        
+        // Handle Instagram OAuth Callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const igCode = urlParams.get('code');
+        if (igCode) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+          await connectInstagramAccount(igCode);
+        }
       } else {
         go('s-login');
       }
@@ -1203,12 +1211,17 @@
     async function fetchExtendedProfile() {
       try {
         const { data, error } = await sb.from('user_profiles').select('*').eq('id', user.id).single();
-        if (data) {
-          const igBtn = document.getElementById('connect-ig');
-          const waBtn = document.getElementById('connect-wa');
-          const igStat = document.getElementById('ig-status');
-          const waStat = document.getElementById('wa-status');
+        const igBtn = document.getElementById('connect-ig');
+        const waBtn = document.getElementById('connect-wa');
+        const igStat = document.getElementById('ig-status');
+        const waStat = document.getElementById('wa-status');
 
+        if (igBtn) {
+          const redirectUri = window.location.origin + window.location.pathname;
+          igBtn.href = `https://www.instagram.com/oauth/authorize?force_reauth=true&client_id=2035173717383732&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights`;
+        }
+
+        if (data) {
           if (data.instagram_id || data.instagram_handle) {
             if (igBtn) igBtn.style.display = 'none';
             if (igStat) igStat.style.display = 'flex';
@@ -1220,6 +1233,33 @@
         }
       } catch (e) {
         console.warn("Profile fetch error:", e);
+      }
+    }
+
+    async function connectInstagramAccount(code) {
+      showLoading('Connecting Instagram to Auto-Pilot...');
+      try {
+        const redirectUri = window.location.origin + window.location.pathname;
+        const response = await fetch(`${window.EDGE_FN_BASE || (SUPABASE_URL + '/functions/v1')}/instagram-connect`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`
+          },
+          body: JSON.stringify({ code, redirectUri })
+        });
+        
+        const resData = await response.json();
+        hideLoading();
+        if (response.ok && resData.success) {
+          showToast('📸 Instagram successfully connected to Auto-Pilot!');
+          await fetchExtendedProfile();
+        } else {
+          showToast('❌ Failed to connect Instagram: ' + (resData.error || 'Unknown error'));
+        }
+      } catch (err) {
+        hideLoading();
+        showToast('❌ Connection error: ' + err.message);
       }
     }
 
